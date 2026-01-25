@@ -4,7 +4,32 @@ A simple checklist for updating prof-savva.github.io, primarily for new opinion 
 
 ---
 
-## Monthly Checklist
+## How to Run This Update
+
+### Option 1: Using Claude Code (Recommended)
+
+Open a terminal in this repository and run:
+
+```bash
+claude
+```
+
+Then ask:
+
+> "Run the monthly website update. Check for new articles I've published and update the website."
+
+Claude will:
+1. Search Think @ LBS and Forbes for new articles
+2. Add any new articles to both `index.html` and `opinion-pieces.html`
+3. Commit and push the changes
+
+### Option 2: Manual Update
+
+Follow the checklist below to update manually.
+
+---
+
+## Manual Checklist
 
 ### 1. Check for New Articles
 
