@@ -4,6 +4,11 @@ body, h1, h2, h3, p, ul, li {
     padding: 0;
 }
 
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -11,6 +16,23 @@ body {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #0366d6;
+    color: #fff;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 100;
+    border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+    top: 0;
 }
 
 header {
@@ -23,6 +45,7 @@ header img {
     width: 150px;
     height: auto;
     margin-right: 20px;
+    border-radius: 4px;
 }
 
 h1 {
@@ -38,6 +61,11 @@ h1 {
     margin-bottom: 5px;
 }
 
+/* Navigation links */
+.links {
+    margin-bottom: 20px;
+}
+
 .links a {
     margin-right: 10px;
     color: #0366d6;
@@ -46,6 +74,12 @@ h1 {
 
 .links a:hover {
     text-decoration: underline;
+}
+
+/* Focus styles for accessibility */
+a:focus {
+    outline: 2px solid #0366d6;
+    outline-offset: 2px;
 }
 
 h2 {
@@ -58,6 +92,22 @@ h2 {
 
 .section {
     margin-bottom: 30px;
+}
+
+/* About section paragraph spacing */
+.about-me p {
+    margin-bottom: 0.75em;
+}
+
+/* Publication and opinion piece lists */
+.publication-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.publication-list li {
+    margin-bottom: 0.5em;
+    padding-left: 0;
 }
 
 .paper {
@@ -74,4 +124,83 @@ h2 {
 
 .paper-info {
     color: #555;
+}
+
+/* Back to top link */
+.back-to-top {
+    display: block;
+    text-align: center;
+    margin: 30px 0;
+    color: #0366d6;
+    text-decoration: none;
+}
+
+.back-to-top:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eaecef;
+    text-align: center;
+    color: #555;
+    font-size: 0.9em;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    header img {
+        margin: 0 0 15px 0;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    h2 {
+        font-size: 1.4em;
+    }
+
+    .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .links a {
+        margin-right: 0;
+    }
+
+    body {
+        padding: 15px;
+    }
+
+    .contact-info {
+        text-align: center;
+    }
+}
+
+/* Print styles */
+@media print {
+    .skip-link,
+    .back-to-top,
+    .statcounter {
+        display: none;
+    }
+
+    body {
+        max-width: 100%;
+    }
+
+    a {
+        color: #333;
+    }
 }
