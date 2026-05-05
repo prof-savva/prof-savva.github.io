@@ -17,14 +17,15 @@ This website serves as an academic portfolio showcasing:
 
 ```
 prof-savva.github.io/
-├── index.html          # Main website page
-├── styles.css          # Stylesheet
-├── DSC_5800.jpg        # Profile photo
-├── SavvaCV.pdf         # Academic CV
-├── *.pdf               # Research papers and manuscripts
-├── README.md           # This file
-├── LICENSE             # License information
-└── .gitignore          # Git ignore rules
+|-- index.html          # Main website page
+|-- opinion-pieces.html # Full opinion pieces archive
+|-- styles.css          # Stylesheet
+|-- DSC_5800.jpg        # Profile photo
+|-- SavvaCV.pdf         # Academic CV
+|-- *.pdf               # Research papers and manuscripts
+|-- README.md           # This file
+|-- LICENSE             # License information
+`-- .gitignore          # Git ignore rules
 ```
 
 ## Updating the Website
