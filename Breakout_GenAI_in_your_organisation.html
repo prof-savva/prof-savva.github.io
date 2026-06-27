@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generative AI in your organisation — Breakout exercise</title>
+<style>
+  /* ================ Typography & palette ================ */
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --navy: #1A2954;
+    --navy-soft: #2A3B6E;
+    --red: #C8102E;
+    --red-soft: #E8A0AB;
+    --ink: #1F2937;
+    --muted: #6B7280;
+    --muted-soft: #9CA3AF;
+    --rule: #E5E7EB;
+    --paper: #FBF8F3;
+    --paper-edge: #F4EFE5;
+    --field-bg: #FFFFFF;
+    --shadow-soft: 0 1px 2px rgba(26, 41, 84, 0.04), 0 4px 12px rgba(26, 41, 84, 0.05);
+    --shadow-focus: 0 0 0 3px rgba(26, 41, 84, 0.12);
+    --shadow-card: 0 0 0 0 rgba(200, 16, 46, 0);
+    --shadow-card-active: 0 0 0 3px rgba(200, 16, 46, 0.12), 0 4px 16px rgba(200, 16, 46, 0.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 800px 400px at 100% 0%, rgba(200, 16, 46, 0.025), transparent 60%),
+      radial-gradient(ellipse 600px 500px at 0% 100%, rgba(26, 41, 84, 0.03), transparent 60%),
+      var(--paper);
+    min-height: 100vh;
+    padding: 48px 24px 96px;
+  }
+
+  /* ================ Layout shell — rail + page ================ */
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ================ Sticky nav rail ================ */
+  .rail {
+    position: sticky;
+    top: 48px;
+    align-self: start;
+    padding: 28px 0 8px 4px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .rail-eyebrow {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 14px;
+    padding-left: 14px;
+  }
+
+  .rail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--rule);
+  }
+
+  .rail-list.governance-block {
+    margin-top: 18px;
+    border-left-color: var(--rule);
+  }
+
+  .rail-section-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    padding: 0 0 8px 14px;
+    margin-top: 14px;
+    border-left: 1px solid transparent;
+  }
+
+  .rail-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 7px 8px 7px 14px;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.35;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    position: relative;
+  }
+
+  .rail-item:hover {
+    color: var(--navy);
+    background: rgba(26, 41, 84, 0.02);
+  }
+
+  .rail-item.active {
+    color: var(--navy);
+    border-left-color: var(--red);
+    font-weight: 500;
+  }
+
+  .rail-item.complete .rail-num {
+    color: var(--navy);
+  }
+
+  .rail-item.complete .rail-dot {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  .rail-num {
+    flex-shrink: 0;
+    width: 16px;
+    font-family: 'Lora', Georgia, serif;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--muted-soft);
+    text-align: right;
+    transition: color 0.15s ease;
+  }
+
+  .rail-label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rail-dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: transparent;
+    margin-top: 6px;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .rail-stretch {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--paper-edge);
+    font-style: italic;
+  }
+
+  .rail-stretch .rail-num {
+    font-style: normal;
+  }
+
+  .page {
+    background: var(--field-bg);
+    border-radius: 4px;
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    max-width: 920px;
+  }
+
+  .page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--paper-edge);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  /* ================ Header ================ */
+  .header {
+    padding: 40px 56px 28px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .brand-mark {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--navy);
+    letter-spacing: 0.01em;
+  }
+
+  .brand-rule {
+    width: 48px;
+    height: 1.5px;
+    background: var(--red);
+    margin: 4px 0 32px;
+  }
+
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Lora', Georgia, serif;
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--navy);
+    margin: 0 0 12px;
+    letter-spacing: -0.005em;
+  }
+
+  .lead {
+    font-family: 'Lora', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 17px;
+    color: var(--navy-soft);
+    margin: 0 0 24px;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+
+  /* ================ Identity strip ================ */
+  .identity {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 24px 56px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .identity-field { display: flex; flex-direction: column; }
+
+  .identity-field label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .identity-field input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 6px 0;
+    font-family: 'Lora', Georgia, serif;
+    font-size: 16px;
+    color: var(--navy);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .identity-field input:focus { border-bottom-color: var(--navy); }
+
+  /* ================ Universal fields (Q1, Q2) ================ */
+  .fields-universal { padding: 36px 56px 12px; }
+
+  .field { margin-bottom: 28px; position: relative; }
+
+  .field-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+
+  .field-num {
+    font-family: 'Lora', Georgia, serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--red);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 28px;
+  }
+
+  .field-title {
+    font-family: 'Lora', Georgia, serif;
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--navy);
+    line-height: 1.3;
+  }
+
+  .field-prompt {
+    font-family: 'Lora', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14.5px;
+    color: var(--muted);
+    margin-left: 44px;
+    margin-bottom: 10px;
+    line-height: 1.45;
+  }
+
+  .field-input {
+    margin-left: 44px;
+    width: calc(100% - 44px);
+    min-height: 64px;
+    padding: 12px 14px;
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  .field-input:hover { background: #FFFFFF; }
+
+  .field-input:focus {
+    background: #FFFFFF;
+    border-color: var(--navy);
+    box-shadow: var(--shadow-focus);
+  }
+
+  .field-input::placeholder { color: #B0B6C0; font-style: italic; }
+
+  /* ================ Architecture chooser ================ */
+  .architecture-section {
+    padding: 12px 56px 24px;
+  }
+
+  .architecture-label {
+    font-family: 'Lora', Georgia, serif;
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--navy);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .architecture-label .field-num {
+    color: var(--red);
+    font-size: 22px;
+    font-weight: 500;
+    width: 28px;
+  }
+
+  .architecture-prompt {
+    font-family: 'Lora', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14.5px;
+    color: var(--muted);
+    margin-left: 44px;
+    margin-bottom: 18px;
+    line-height: 1.45;
+  }
+
+  .arch-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-left: 44px;
+  }
+
+  .arch-card {
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-left: 2px solid var(--rule);
+    border-radius: 0 3px 3px 0;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: left;
+    font-family: inherit;
+    box-shadow: var(--shadow-card);
+    position: relative;
+  }
+
+  .arch-card:hover {
+    background: #FFFFFF;
+    border-left-color: var(--red-soft);
+    transform: translateY(-1px);
+  }
+
+  .arch-card.active {
+    background: #FFFFFF;
+    border-left: 2px solid var(--red);
+    border-color: var(--paper-edge);
+    box-shadow: var(--shadow-card-active);
+  }
+
+  .arch-card-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .arch-card-check {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--red);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  .arch-card.active .arch-card-check {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .arch-card-text {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 13.5px;
+    color: var(--ink);
+    line-height: 1.45;
+  }
+
+  /* ================ Branching fields ================ */
+  .fields-branching {
+    padding: 12px 56px 12px;
+    transition: opacity 0.25s ease;
+  }
+
+  .fields-branching.locked {
+    opacity: 0.4;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .locked-banner {
+    margin-left: 44px;
+    margin-bottom: 24px;
+    padding: 10px 14px;
+    background: var(--paper);
+    border: 1px dashed var(--paper-edge);
+    border-radius: 3px;
+    font-family: 'Lora', Georgia, serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--muted);
+    display: none;
+  }
+
+  .fields-branching.locked .locked-banner { display: block; }
+
+  /* Hide field bodies when locked, but keep the structure visible as scaffolding */
+  .fields-branching.locked .field-prompt,
+  .fields-branching.locked .field-input {
+    visibility: hidden;
+  }
+
+  /* Q4 — the architecture-distinctive question — slight emphasis */
+  .field-distinctive .field-input {
+    border-left: 2px solid var(--red);
+  }
+
+  /* Governance section header */
+  .governance-header {
+    margin: 8px 0 18px 44px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+
+  .governance-header-sub {
+    font-family: 'Lora', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: none;
+    letter-spacing: normal;
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+
+  /* Headline + helper inside a branching prompt */
+  .q-lead {
+    display: block;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--navy-soft);
+    margin-bottom: 3px;
+    line-height: 1.35;
+  }
+  .q-helper {
+    display: block;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* ================ Work-profile diagnostic (Q3) ================ */
+  .profile-rows {
+    margin-left: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .profile-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .profile-row-label {
+    flex: 0 0 210px;
+    font-family: 'Lora', Georgia, serif;
+    font-size: 14.5px;
+    color: var(--navy);
+    line-height: 1.25;
+  }
+  .profile-row-label small {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-style: normal;
+    color: var(--muted-soft);
+    letter-spacing: 0.01em;
+    margin-top: 1px;
+  }
+  .profile-options { display: inline-flex; gap: 6px; }
+  .profile-opt {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 6px 16px;
+    border-radius: 3px;
+    border: 1px solid var(--paper-edge);
+    background: var(--paper);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .profile-opt:hover { border-color: var(--red-soft); color: var(--navy); background: var(--paper); }
+  .profile-opt.active { background: var(--navy); border-color: var(--navy); color: #FFFFFF; }
+  .profile-opt.active:hover { background: var(--navy-soft); color: #FFFFFF; }
+
+  /* Experiment field — subtle culmination accent */
+  .field-experiment .field-input { border-left: 2px solid var(--red); }
+
+  /* Debrief template in footer */
+  .debrief-template {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    font-family: 'Lora', Georgia, serif;
+    font-size: 14px;
+    color: var(--navy);
+    line-height: 1.7;
+  }
+  .debrief-template li { margin: 0; }
+  .debrief-template .blank { color: var(--muted-soft); font-style: italic; }
+
+  /* Smooth transition when branching content swaps in */
+  .swap-transition { transition: opacity 0.18s ease; }
+  .swap-transition.swapping { opacity: 0; }
+
+  /* ================ Stretch question ================ */
+  .stretch {
+    margin: 12px 56px 0;
+    padding: 20px 24px;
+    background: var(--paper);
+    border-radius: 3px;
+    border: 1px dashed var(--paper-edge);
+  }
+
+  .stretch-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .stretch-prompt {
+    font-family: 'Lora', Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--navy-soft);
+    margin: 0 0 12px;
+    line-height: 1.5;
+  }
+
+  .stretch-input {
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 12px;
+    background: #FFFFFF;
+    border: 1px solid var(--paper-edge);
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .stretch-input:focus {
+    border-color: var(--navy);
+    box-shadow: var(--shadow-focus);
+  }
+
+  /* ================ Footer ================ */
+  .footer {
+    margin-top: 32px;
+    padding: 24px 56px 36px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .deliverable { flex: 1; min-width: 280px; }
+
+  .deliverable-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+
+  .deliverable-text {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 15px;
+    color: var(--navy);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .deliverable-text em { color: var(--navy-soft); }
+
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  button {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 10px 20px;
+    border-radius: 3px;
+    border: 1px solid var(--navy);
+    background: var(--field-bg);
+    color: var(--navy);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  button:hover { background: var(--navy); color: #FFFFFF; }
+
+  button.primary { background: var(--navy); color: #FFFFFF; }
+
+  button.primary:hover { background: var(--navy-soft); }
+
+  /* ================ Saved indicator ================ */
+  .saved-indicator {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 10px 16px;
+    background: var(--navy);
+    color: #FFFFFF;
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(26, 41, 84, 0.2);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .saved-indicator.visible { opacity: 1; transform: translateY(0); }
+
+  /* ================ Print ================ */
+  @media print {
+    body { background: white; padding: 0; }
+    .shell { display: block; max-width: none; }
+    .rail { display: none; }
+    .page { box-shadow: none; max-width: none; }
+    .actions, .saved-indicator, .arch-card-check { display: none; }
+    .field-input, .stretch-input, .identity-field input {
+      border: 1px solid var(--rule) !important;
+      box-shadow: none !important;
+    }
+    .field, .arch-cards { page-break-inside: avoid; }
+    .fields-branching.locked { opacity: 1; }
+    .fields-branching.locked .field-prompt,
+    .fields-branching.locked .field-input { visibility: visible; }
+    /* Selection survives even when print strips backgrounds */
+    .profile-opt { color: var(--muted-soft) !important; border-color: var(--rule) !important; background: #fff !important; }
+    .profile-opt.active {
+      color: var(--navy) !important;
+      font-weight: 700 !important;
+      border: 2px solid var(--navy) !important;
+      background: #fff !important;
+    }
+    .arch-card.active { border-left: 3px solid var(--navy) !important; }
+    .arch-card.active .arch-card-label { font-weight: 700; }
+  }
+
+  /* ================ Responsive ================ */
+  @media (max-width: 960px) {
+    .shell { grid-template-columns: 1fr; gap: 0; }
+    .rail { display: none; }
+  }
+
+  @media (max-width: 720px) {
+    body { padding: 24px 12px 64px; }
+    .header { padding: 28px 24px 20px; }
+    .identity, .fields-universal, .architecture-section, .fields-branching, .footer {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+    .stretch { margin-left: 24px; margin-right: 24px; }
+    .arch-cards { grid-template-columns: 1fr; gap: 8px; margin-left: 0; }
+    .architecture-prompt, .locked-banner, .governance-header { margin-left: 0; }
+    .identity { grid-template-columns: 1fr; }
+    h1 { font-size: 26px; }
+    .lead { font-size: 15px; }
+    .field-prompt, .field-input { margin-left: 0; width: 100%; }
+    .field-head { margin-bottom: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ============== STICKY NAV RAIL ============== -->
+<aside class="rail" aria-label="Worksheet sections">
+  <div class="rail-eyebrow">On this page</div>
+
+  <ul class="rail-list" id="rail-list-top">
+    <li class="rail-item" data-target="f1">
+      <span class="rail-num">1</span>
+      <span class="rail-label">The setting</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+    <li class="rail-item" data-target="f2">
+      <span class="rail-num">2</span>
+      <span class="rail-label">The driver</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+    <li class="rail-item" data-target="f3">
+      <span class="rail-num">3</span>
+      <span class="rail-label">The work profile</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+    <li class="rail-item" data-target="architecture-section" data-arch-target="true">
+      <span class="rail-num">4</span>
+      <span class="rail-label">The AI mode</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+    <li class="rail-item" data-target="q4-input" data-needs-arch="true">
+      <span class="rail-num">5</span>
+      <span class="rail-label" id="rail-q4-label">The distinctive question</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+  </ul>
+
+  <div class="rail-section-label">Leadership questions</div>
+
+  <ul class="rail-list governance-block" id="rail-list-gov">
+    <li class="rail-item" data-target="q5-input" data-needs-arch="true">
+      <span class="rail-num">6</span>
+      <span class="rail-label">Governing the workflow</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+    <li class="rail-item" data-target="q6-input" data-needs-arch="true">
+      <span class="rail-num">7</span>
+      <span class="rail-label">Helping it learn</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+    <li class="rail-item" data-target="q7-input" data-needs-arch="true">
+      <span class="rail-num">8</span>
+      <span class="rail-label">Owning the outcome</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+    <li class="rail-item" data-target="q8-input" data-needs-arch="true">
+      <span class="rail-num">9</span>
+      <span class="rail-label">The human role</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+  </ul>
+
+  <ul class="rail-list">
+    <li class="rail-item" data-target="fexp">
+      <span class="rail-num">10</span>
+      <span class="rail-label">The first experiment</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+    <li class="rail-item" data-target="fstretch">
+      <span class="rail-num">11</span>
+      <span class="rail-label">Six months out</span>
+      <span class="rail-dot" aria-hidden="true"></span>
+    </li>
+  </ul>
+</aside>
+
+<div class="page">
+
+  <!-- ============== HEADER ============== -->
+  <header class="header">
+    <div class="brand-mark">London Business School</div>
+    <div class="brand-rule"></div>
+
+    <div class="eyebrow">Breakout exercise · 30 minutes</div>
+    <h1>Generative AI in your organisation</h1>
+    <p class="lead">Frame the work. Choose the AI mode. Design the conditions for success.</p>
+  </header>
+
+  <!-- ============== IDENTITY ============== -->
+  <section class="identity">
+    <div class="identity-field">
+      <label for="group-name">Group</label>
+      <input id="group-name" type="text" autocomplete="off" />
+    </div>
+    <div class="identity-field">
+      <label for="application-name">The workflow / use case — in a phrase</label>
+      <input id="application-name" type="text" autocomplete="off" />
+    </div>
+  </section>
+
+  <!-- ============== Q1, Q2 — UNIVERSAL ============== -->
+  <section class="fields-universal">
+
+    <div class="field">
+      <div class="field-head">
+        <div class="field-num">1</div>
+        <div class="field-title">The setting</div>
+      </div>
+      <div class="field-prompt">What's the workflow today? Where does it start and end, and who owns it?</div>
+      <textarea class="field-input" id="f1" rows="3" placeholder="One or two sentences."></textarea>
+    </div>
+
+    <div class="field">
+      <div class="field-head">
+        <div class="field-num">2</div>
+        <div class="field-title">The driver</div>
+      </div>
+      <div class="field-prompt">What's the value — efficiency, quality, risk reduction, growth, client experience, or a new service?</div>
+      <textarea class="field-input" id="f2" rows="3" placeholder="Name the one that matters most."></textarea>
+    </div>
+
+    <div class="field" id="f3">
+      <div class="field-head">
+        <div class="field-num">3</div>
+        <div class="field-title">The work profile</div>
+      </div>
+      <div class="field-prompt">Rate the work before you choose a mode. This should steer the choice — don't pick "agentic" just because it sounds ambitious.</div>
+      <div class="profile-rows">
+        <div class="profile-row" data-profile="volume">
+          <div class="profile-row-label">Volume / speed<small>Would doing more, faster create value?</small></div>
+          <div class="profile-options">
+            <button type="button" class="profile-opt" data-value="low">Low</button>
+            <button type="button" class="profile-opt" data-value="med">Med</button>
+            <button type="button" class="profile-opt" data-value="high">High</button>
+          </div>
+        </div>
+        <div class="profile-row" data-profile="risk">
+          <div class="profile-row-label">Risk / reversibility<small>How consequential and reversible are errors?</small></div>
+          <div class="profile-options">
+            <button type="button" class="profile-opt" data-value="low">Low</button>
+            <button type="button" class="profile-opt" data-value="med">Med</button>
+            <button type="button" class="profile-opt" data-value="high">High</button>
+          </div>
+        </div>
+        <div class="profile-row" data-profile="structure">
+          <div class="profile-row-label">Structure / codifiability<small>Can the work, rules and context be codified?</small></div>
+          <div class="profile-options">
+            <button type="button" class="profile-opt" data-value="low">Low</button>
+            <button type="button" class="profile-opt" data-value="med">Med</button>
+            <button type="button" class="profile-opt" data-value="high">High</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============== AI MODE CHOOSER ============== -->
+  <section class="architecture-section" id="architecture-section">
+    <div class="architecture-label">
+      <span class="field-num">4</span>
+      <span>The AI mode <span style="font-weight:400;color:var(--muted);font-size:14px;">/ architecture</span></span>
+    </div>
+    <div class="architecture-prompt">Pick the <em>dominant</em> mode for the first implementation — most real use cases blend modes, so choose the one the first design is built around. The questions below adapt to your choice.</div>
+
+    <div class="arch-cards" role="radiogroup" aria-label="Architecture">
+      <button type="button" class="arch-card" data-arch="horizontal" role="radio" aria-checked="false">
+        <div class="arch-card-label">
+          <span>Horizontal</span>
+          <span class="arch-card-check">✓</span>
+        </div>
+        <div class="arch-card-text">General-purpose tools help people do existing work faster. AI added to the worker.</div>
+      </button>
+      <button type="button" class="arch-card" data-arch="vertical" role="radio" aria-checked="false">
+        <div class="arch-card-label">
+          <span>Vertical</span>
+          <span class="arch-card-check">✓</span>
+        </div>
+        <div class="arch-card-text">Domain-specific AI helps experts do specialist work better. AI wrapped around expert work.</div>
+      </button>
+      <button type="button" class="arch-card" data-arch="agentic" role="radio" aria-checked="false">
+        <div class="arch-card-label">
+          <span>Agentic</span>
+          <span class="arch-card-check">✓</span>
+        </div>
+        <div class="arch-card-text">AI systems execute parts of a workflow, not just advise. AI embedded in the workflow.</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============== BRANCHING FIELDS — Q4 (distinctive) + Q5–Q8 (governance) ============== -->
+  <section class="fields-branching locked" id="branching-section">
+
+    <div class="locked-banner">Pick an AI mode above to see the next questions.</div>
+
+    <!-- Q4 — distinctive (displayed as 5) -->
+    <div class="field field-distinctive">
+      <div class="field-head">
+        <div class="field-num">5</div>
+        <div class="field-title swap-transition" id="q4-title">The distinctive question</div>
+      </div>
+      <div class="field-prompt swap-transition" id="q4-prompt">&nbsp;</div>
+      <textarea class="field-input" id="q4-input" rows="3" placeholder=""></textarea>
+    </div>
+
+    <!-- Governance section header -->
+    <div class="governance-header">
+      The leadership questions
+      <div class="governance-header-sub swap-transition" id="gov-sub">These are the calls a leader has to make to turn this into something real. Answer them from experience — first instinct is fine.</div>
+    </div>
+
+    <!-- Q5 — Governing the workflow (displayed as 6) -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-num">6</div>
+        <div class="field-title swap-transition" id="q5-title">Governing the workflow</div>
+      </div>
+      <div class="field-prompt swap-transition" id="q5-prompt">&nbsp;</div>
+      <textarea class="field-input" id="q5-input" rows="3" placeholder=""></textarea>
+    </div>
+
+    <!-- Q6 — Helping it learn (displayed as 7) -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-num">7</div>
+        <div class="field-title swap-transition" id="q6-title">Helping it learn</div>
+      </div>
+      <div class="field-prompt swap-transition" id="q6-prompt">&nbsp;</div>
+      <textarea class="field-input" id="q6-input" rows="3" placeholder=""></textarea>
+    </div>
+
+    <!-- Q7 — Owning the outcome (displayed as 8) -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-num">8</div>
+        <div class="field-title swap-transition" id="q7-title">Owning the outcome</div>
+      </div>
+      <div class="field-prompt swap-transition" id="q7-prompt">&nbsp;</div>
+      <textarea class="field-input" id="q7-input" rows="3" placeholder=""></textarea>
+    </div>
+
+    <!-- Q8 — Human role (displayed as 9) -->
+    <div class="field">
+      <div class="field-head">
+        <div class="field-num">9</div>
+        <div class="field-title swap-transition" id="q8-title">The human role</div>
+      </div>
+      <div class="field-prompt swap-transition" id="q8-prompt">&nbsp;</div>
+      <textarea class="field-input" id="q8-input" rows="3" placeholder=""></textarea>
+    </div>
+
+  </section>
+
+  <!-- ============== Q10 — FIRST EXPERIMENT (universal) ============== -->
+  <section class="fields-universal">
+    <div class="field field-experiment">
+      <div class="field-head">
+        <div class="field-num">10</div>
+        <div class="field-title">The first experiment</div>
+      </div>
+      <div class="field-prompt">What would you test in the next 30–90 days — with which users, on which workflow — and what's the success metric? Pick a metric that matches your driver (cycle time, quality, rework, expert time released, risk reduction, client experience, revenue, auditability).</div>
+      <textarea class="field-input" id="fexp" rows="3" placeholder="The smallest test that would tell you whether this is worth scaling."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-head">
+        <div class="field-num">11</div>
+        <div class="field-title">Six months out</div>
+      </div>
+      <div class="field-prompt">If the first experiment worked and you scaled it, what would the team — or the delivery model — look like in six months?</div>
+      <textarea class="field-input" id="fstretch" rows="3" placeholder="Where this leads if it works."></textarea>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="footer">
+    <div class="deliverable">
+      <div class="deliverable-label">Two-minute report-back</div>
+      <ul class="debrief-template">
+        <li>Our workflow is <span class="blank">__________</span>.</li>
+        <li>We chose the <span class="blank">______</span> mode because <span class="blank">__________</span>.</li>
+        <li>The value is <span class="blank">__________</span>.</li>
+        <li>The biggest design or governance issue is <span class="blank">__________</span>.</li>
+        <li>Our 90-day experiment is <span class="blank">__________</span>.</li>
+      </ul>
+    </div>
+    <div class="actions">
+      <button id="btn-reset" type="button">Reset worksheet</button>
+      <button id="btn-print" type="button">Print / Save as PDF</button>
+      <button id="btn-download" class="primary" type="button">Download answers</button>
+    </div>
+  </footer>
+
+</div>
+
+</div><!-- /.shell -->
+
+<div class="saved-indicator" id="saved">Saved</div>
+
+<script>
+  // =================================================================
+  //  Branching content — five questions per architecture (Q4 + Q5-Q8).
+  //  Q4 is the mode-distinctive question. Q5-Q8 are plain-language
+  //  leadership questions that foreshadow the slide-35 roles (Governing the
+  //  workflow -> workflow governor; Helping it learn -> learning-loop
+  //  coordinator; Owning the outcome -> accountability architect), which are
+  //  named in the teaching that follows the exercise.
+  // =================================================================
+  const BRANCH_CONTENT = {
+    horizontal: {
+      q4: {
+        title: 'Complement or substitute to experience?',
+        lead: '',
+        helper: 'Will general-purpose AI mostly level up your less-experienced people, or amplify the advantage of your strongest experts? The answer changes who you give it to first.',
+        placeholder: 'Who it helps most \u2014 and what that implies.'
+      },
+      q5: {
+        title: 'Governing the workflow',
+        lead: 'Where does AI enter the workflow?',
+        helper: 'Which steps can it assist, and which must stay human judgement?',
+        placeholder: 'Where it fits \u2014 and the step it never owns.'
+      },
+      q6: {
+        title: 'Helping it learn',
+        lead: 'How does good practice spread?',
+        helper: 'When someone finds a prompt that works, who curates it into shared prompts, examples and house standards \u2014 instead of it staying a private trick?',
+        placeholder: 'How good practice spreads, and who curates it.'
+      },
+      q7: {
+        title: 'Owning the outcome',
+        lead: 'Who owns the output?',
+        helper: 'What must be verified \u2014 claims, sources \u2014 before AI-assisted work is sent? The human who sends it owns it.',
+        placeholder: 'Who owns the output \u2014 and the rule that makes it stick.'
+      },
+      q8: {
+        title: 'The human role',
+        lead: 'How do you prevent over-reliance?',
+        helper: 'Keep AI a sparring partner, not the first answer. Who notices when judgement is quietly eroding?',
+        placeholder: 'Who guards against over-reliance.'
+      }
+    },
+    vertical: {
+      q4: {
+        title: 'What kind of vertical tool?',
+        lead: 'Knowledge manager, expert advisor, or copilot?',
+        helper: 'Knowledge management that synthesises what the firm knows (like McKinsey Lilli), an expert advisor that does the work (like Harvey.ai in law), or a copilot inside a live workflow (like DAX for clinicians)? The type decides what must surround the model \u2014 the documents, templates, standards, prior decisions and data it needs, and whether they\u2019re ready.',
+        placeholder: 'The type \u2014 and the context that type needs.'
+      },
+      q5: {
+        title: 'Governing the workflow',
+        lead: 'Where are the expert gates?',
+        helper: 'Where does the tool draft, compare, check or flag \u2014 and where does the expert decide? What gate sits before anything leaves the team?',
+        placeholder: 'The handoffs \u2014 and the gate before work leaves.'
+      },
+      q6: {
+        title: 'Helping it learn',
+        lead: 'Who maintains the context?',
+        helper: 'The model is fixed; the context around it goes stale. Who updates documents, standards and examples, and feeds expert corrections back in? This is the context-engineering job, and it is never finished.',
+        placeholder: 'Who keeps the context current, and feeds corrections back.'
+      },
+      q7: {
+        title: 'Owning the outcome',
+        lead: 'Who is accountable for the judgement?',
+        helper: 'When the tool contributes to a flawed expert decision \u2014 the expert, the team that built it, or no one? What audit trail shows what it recommended and what the expert did?',
+        placeholder: 'The role that carries the consequence.'
+      },
+      q8: {
+        title: 'The human role',
+        lead: 'What does the expert see?',
+        helper: 'A recommendation only, or the evidence, assumptions and rationale behind it? And what can they override without a fight?',
+        placeholder: 'What the expert sees, and what they can override.'
+      }
+    },
+    agentic: {
+      q4: {
+        title: 'Where it acts, where it asks',
+        lead: '',
+        helper: 'Where should the agent act on its own, where should it only recommend, and where must a human decide? Drawing that line is the core design choice \u2014 everything downstream follows.',
+        placeholder: 'The line between act, recommend, and decide.'
+      },
+      q5: {
+        title: 'Governing the workflow',
+        lead: 'Map the process end to end.',
+        helper: 'What does the agent do autonomously, what stays human, what is shared? Where are the approval gates and the escalation path from agent to human?',
+        placeholder: 'The redesigned loop: gates, handoffs, escalation.'
+      },
+      q6: {
+        title: 'Helping it learn',
+        lead: 'How does the loop learn?',
+        helper: 'The agent won\u2019t learn from mistakes unless you make it. Who captures overrides and edge cases and feeds them back into its context, tools and rules? Otherwise you have automated last quarter\u2019s process forever.',
+        placeholder: 'Who closes the loop from override to updated context.'
+      },
+      q7: {
+        title: 'Owning the outcome',
+        lead: 'Who owns wrong action?',
+        helper: 'Define risk thresholds, the audit trail of inputs-actions-approvals, rollback, and escalation. Air Canada\u2019s chatbot gave bad information and the company was held liable \u2014 design this before the incident.',
+        placeholder: 'Ownership, thresholds, audit trail, rollback.'
+      },
+      q8: {
+        title: 'The human role',
+        lead: 'Where does the human stay in control?',
+        helper: 'When the agent runs on its own, the human shifts from doing the work to overseeing it. Who is watching, what can they see, and can they step in and stop it when something looks wrong \u2014 without waiting for sign-off?',
+        placeholder: 'Who oversees it \u2014 and can they stop it.'
+      }
+    }
+  };
+
+  const ARCHITECTURES = ['horizontal', 'vertical', 'agentic'];
+  const UNIVERSAL_FIELDS = ['group-name', 'application-name', 'f1', 'f2', 'fexp', 'fstretch'];
+  const PROFILE_KEYS = ['profile-volume', 'profile-risk', 'profile-structure'];
+  const BRANCH_FIELD_KEYS = ['q4', 'q5', 'q6', 'q7', 'q8'];
+
+  const STORAGE_KEY = 'lbs-breakout-genai-v4';
+
+  // =================================================================
+  //  State — keep separate q4-q8 answers per architecture.
+  // =================================================================
+  const state = {
+    universal: {},
+    branching: {
+      horizontal: { q4: '', q5: '', q6: '', q7: '', q8: '' },
+      vertical:   { q4: '', q5: '', q6: '', q7: '', q8: '' },
+      agentic:    { q4: '', q5: '', q6: '', q7: '', q8: '' }
+    },
+    architecture: null
+  };
+
+  // =================================================================
+  //  Persistence
+  // =================================================================
+  let savedIndicatorTimer = null;
+  function showSaved() {
+    const ind = document.getElementById('saved');
+    ind.classList.add('visible');
+    clearTimeout(savedIndicatorTimer);
+    savedIndicatorTimer = setTimeout(() => ind.classList.remove('visible'), 1100);
+  }
+
+  let debounceTimer = null;
+  function persistDebounced() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(persist, 500);
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      showSaved();
+    } catch (e) { /* no-op */ }
+  }
+
+  function restore() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        if (parsed.universal) Object.assign(state.universal, parsed.universal);
+        if (parsed.branching) {
+          ARCHITECTURES.forEach(a => {
+            if (parsed.branching[a]) {
+              BRANCH_FIELD_KEYS.forEach(k => {
+                state.branching[a][k] = parsed.branching[a][k] || '';
+              });
+            }
+          });
+        }
+        if (parsed.architecture && ARCHITECTURES.includes(parsed.architecture)) {
+          state.architecture = parsed.architecture;
+        }
+      }
+    } catch (e) { /* no-op */ }
+  }
+
+  // =================================================================
+  //  Render
+  // =================================================================
+  function applyUniversalToDOM() {
+    UNIVERSAL_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && state.universal[id] !== undefined) el.value = state.universal[id];
+    });
+  }
+
+  function applyArchitectureCardsToDOM() {
+    document.querySelectorAll('.arch-card').forEach(card => {
+      const isActive = card.dataset.arch === state.architecture;
+      card.classList.toggle('active', isActive);
+      card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+    });
+  }
+
+  function applyBranchingToDOM() {
+    const section = document.getElementById('branching-section');
+
+    if (!state.architecture) {
+      section.classList.add('locked');
+      // Reset to neutral scaffolding
+      const placeholders = {
+        q4: 'The distinctive question',
+        q5: 'Governing the workflow',
+        q6: 'Helping it learn',
+        q7: 'Owning the outcome',
+        q8: 'The human role'
+      };
+      BRANCH_FIELD_KEYS.forEach(k => {
+        document.getElementById(`${k}-title`).textContent = placeholders[k];
+        document.getElementById(`${k}-prompt`).innerHTML = '&nbsp;';
+        const input = document.getElementById(`${k}-input`);
+        input.placeholder = '';
+        input.value = '';
+      });
+      return;
+    }
+
+    section.classList.remove('locked');
+    const c = BRANCH_CONTENT[state.architecture];
+
+    BRANCH_FIELD_KEYS.forEach(k => {
+      document.getElementById(`${k}-title`).textContent = c[k].title;
+      const lead = c[k].lead ? `<span class="q-lead">${c[k].lead}</span>` : '';
+      const helper = `<span class="q-helper">${c[k].helper}</span>`;
+      document.getElementById(`${k}-prompt`).innerHTML = lead + helper;
+      const input = document.getElementById(`${k}-input`);
+      input.placeholder = c[k].placeholder;
+      input.value = state.branching[state.architecture][k] || '';
+    });
+  }
+
+  function applyProfileToDOM() {
+    document.querySelectorAll('.profile-row').forEach(row => {
+      const key = 'profile-' + row.dataset.profile;
+      const chosen = state.universal[key];
+      row.querySelectorAll('.profile-opt').forEach(opt => {
+        opt.classList.toggle('active', !!chosen && opt.dataset.value === chosen);
+      });
+    });
+  }
+
+  function applyAllToDOM() {
+    applyUniversalToDOM();
+    applyProfileToDOM();
+    applyArchitectureCardsToDOM();
+    applyBranchingToDOM();
+    updateRail();
+  }
+
+  function smoothSwapBranching() {
+    const els = document.querySelectorAll('.swap-transition');
+    els.forEach(el => el.classList.add('swapping'));
+    setTimeout(() => {
+      applyBranchingToDOM();
+      updateRail();
+      els.forEach(el => el.classList.remove('swapping'));
+    }, 130);
+  }
+
+  // =================================================================
+  //  Wiring
+  // =================================================================
+  UNIVERSAL_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      state.universal[id] = el.value;
+      persistDebounced();
+      updateRail();
+    });
+  });
+
+  // Work-profile diagnostic buttons
+  document.querySelectorAll('.profile-row').forEach(row => {
+    const key = 'profile-' + row.dataset.profile;
+    row.querySelectorAll('.profile-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const val = opt.dataset.value;
+        // toggle off if re-clicking the active one
+        state.universal[key] = (state.universal[key] === val) ? '' : val;
+        applyProfileToDOM();
+        persistDebounced();
+        updateRail();
+      });
+    });
+  });
+
+  document.querySelectorAll('.arch-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const chosen = card.dataset.arch;
+      if (chosen === state.architecture) return;
+      state.architecture = chosen;
+      applyArchitectureCardsToDOM();
+      smoothSwapBranching();
+      persist();
+    });
+  });
+
+  // Branching field input handlers
+  BRANCH_FIELD_KEYS.forEach(k => {
+    const input = document.getElementById(`${k}-input`);
+    input.addEventListener('input', (e) => {
+      if (!state.architecture) return;
+      state.branching[state.architecture][k] = e.target.value;
+      persistDebounced();
+      updateRail();
+    });
+  });
+
+  // =================================================================
+  //  Nav rail — completion state, click-to-scroll, scroll-spy
+  // =================================================================
+
+  // Map rail items to a "is this filled" check.
+  function isFilled(target) {
+    switch (target) {
+      case 'f1':
+      case 'f2':
+      case 'fexp':
+      case 'fstretch':
+        return ((state.universal[target] || '').trim().length > 0);
+      case 'f3':
+        return PROFILE_KEYS.every(k => (state.universal[k] || '').length > 0);
+      case 'architecture-section':
+        return !!state.architecture;
+      case 'q4-input':
+      case 'q5-input':
+      case 'q6-input':
+      case 'q7-input':
+      case 'q8-input': {
+        if (!state.architecture) return false;
+        const k = target.replace('-input', '');
+        return ((state.branching[state.architecture][k] || '').trim().length > 0);
+      }
+      default:
+        return false;
+    }
+  }
+
+  function updateRail() {
+    document.querySelectorAll('.rail-item').forEach(item => {
+      const target = item.dataset.target;
+      const filled = isFilled(target);
+      item.classList.toggle('complete', filled);
+
+      // Branching items are inert until architecture chosen
+      if (item.dataset.needsArch === 'true' && !state.architecture) {
+        item.style.opacity = '0.5';
+        item.style.cursor = 'default';
+      } else {
+        item.style.opacity = '';
+        item.style.cursor = 'pointer';
+      }
+    });
+
+    // Update Q4 rail label to architecture-specific title once chosen.
+    // Q5-Q8 stay as the four governance pillar names regardless.
+    const q4Label = document.getElementById('rail-q4-label');
+    if (q4Label) {
+      if (state.architecture && BRANCH_CONTENT[state.architecture]) {
+        q4Label.textContent = BRANCH_CONTENT[state.architecture].q4.title;
+      } else {
+        q4Label.textContent = 'The distinctive question';
+      }
+    }
+  }
+
+  // Click-to-scroll-and-focus
+  document.querySelectorAll('.rail-item').forEach(item => {
+    item.addEventListener('click', () => {
+      // Don't navigate to branching questions before architecture is chosen
+      if (item.dataset.needsArch === 'true' && !state.architecture) return;
+
+      const target = item.dataset.target;
+      const el = document.getElementById(target);
+      if (!el) return;
+
+      // For input targets, scroll to the field then focus the input
+      const scrollTarget =
+        item.dataset.archTarget === 'true'
+          ? document.querySelector('.architecture-section')
+          : (el.closest('.field') || el);
+      scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // After scroll, focus the input itself if it's an input/textarea
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        setTimeout(() => el.focus({ preventScroll: true }), 320);
+      }
+    });
+  });
+
+  // Scroll-spy: highlight the nearest field as active.
+  // Map field IDs to rail items.
+  function setupScrollSpy() {
+    const observed = [
+      { id: 'f1',                    target: 'f1' },
+      { id: 'f2',                    target: 'f2' },
+      { id: 'f3',                    target: 'f3' },
+      { id: 'architecture-section',  target: 'architecture-section' },
+      { id: 'q4-input',              target: 'q4-input' },
+      { id: 'q5-input',              target: 'q5-input' },
+      { id: 'q6-input',              target: 'q6-input' },
+      { id: 'q7-input',              target: 'q7-input' },
+      { id: 'q8-input',              target: 'q8-input' },
+      { id: 'fexp',                  target: 'fexp' },
+      { id: 'fstretch',              target: 'fstretch' }
+    ];
+
+    const railItemByTarget = {};
+    document.querySelectorAll('.rail-item').forEach(item => {
+      railItemByTarget[item.dataset.target] = item;
+    });
+
+    function setActive(target) {
+      Object.values(railItemByTarget).forEach(it => it.classList.remove('active'));
+      const it = railItemByTarget[target];
+      if (it) it.classList.add('active');
+    }
+
+    // Track which entries are intersecting and pick the topmost.
+    const visible = new Map();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) visible.set(entry.target.id, entry);
+        else visible.delete(entry.target.id);
+      });
+
+      // Find the topmost visible — smallest top above 0
+      if (visible.size === 0) return;
+      let topEntry = null;
+      visible.forEach(entry => {
+        if (!topEntry || entry.boundingClientRect.top < topEntry.boundingClientRect.top) {
+          topEntry = entry;
+        }
+      });
+      const matched = observed.find(o => o.id === topEntry.target.id);
+      if (matched) setActive(matched.target);
+    }, {
+      rootMargin: '-15% 0% -55% 0%',
+      threshold: [0, 0.25, 0.5, 0.75, 1]
+    });
+
+    observed.forEach(o => {
+      const el = document.getElementById(o.id);
+      if (el) observer.observe(el);
+    });
+  }
+  setupScrollSpy();
+
+  // =================================================================
+  //  Init
+  // =================================================================
+  restore();
+  applyAllToDOM();
+
+  // =================================================================
+  //  Print
+  // =================================================================
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  // Reset — clear all answers (useful on shared laptops / between groups)
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    const ok = window.confirm('Clear all answers on this worksheet? This cannot be undone.');
+    if (!ok) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* no-op */ }
+    state.universal = {};
+    state.architecture = null;
+    ARCHITECTURES.forEach(a => {
+      BRANCH_FIELD_KEYS.forEach(k => { state.branching[a][k] = ''; });
+    });
+    // Clear any text inputs the render pass won't blank on its own
+    UNIVERSAL_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    applyAllToDOM();
+    showSaved();
+  });
+
+  // =================================================================
+  //  Download — reflects the chosen architecture and its answers.
+  // =================================================================
+  document.getElementById('btn-download').addEventListener('click', () => {
+    const u = state.universal;
+    const arch = state.architecture;
+    const archLabel = arch ? arch.charAt(0).toUpperCase() + arch.slice(1) : '\u2014';
+    const branch = arch ? state.branching[arch] : { q4:'', q5:'', q6:'', q7:'', q8:'' };
+    const c = arch ? BRANCH_CONTENT[arch] : null;
+    const archDescriptions = {
+      horizontal: 'General-purpose tools help people do existing work faster \u2014 AI added to the worker.',
+      vertical:   'Domain-specific AI helps experts do specialist work better \u2014 AI wrapped around expert work.',
+      agentic:    'AI systems execute parts of a workflow, not just advise \u2014 AI embedded in the workflow.'
+    };
+
+    const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '\u2014';
+    const profileLine =
+      'Volume/speed ' + cap(u['profile-volume']) +
+      '  \u00b7  Risk/reversibility ' + cap(u['profile-risk']) +
+      '  \u00b7  Structure/codifiability ' + cap(u['profile-structure']);
+
+    const qBlock = (n, k) => [
+      n + '. ' + c[k].title.toUpperCase() + (c[k].lead ? ' \u2014 ' + c[k].lead : ''),
+      '   ' + c[k].helper,
+      '   ' + ((branch[k] || '').trim() || '\u2014'),
+      ''
+    ];
+
+    const lines = [
+      'GENERATIVE AI IN YOUR ORGANISATION',
+      'London Business School \u2014 breakout exercise',
+      '',
+      'Group:     ' + ((u['group-name'] || '').trim() || '\u2014'),
+      'Use case:  ' + ((u['application-name'] || '').trim() || '\u2014'),
+      'AI mode:   ' + archLabel,
+      '',
+      '\u2500'.repeat(64),
+      '',
+      '1. THE SETTING',
+      '   ' + ((u['f1'] || '').trim() || '\u2014'),
+      '',
+      '2. THE DRIVER',
+      '   ' + ((u['f2'] || '').trim() || '\u2014'),
+      '',
+      '3. THE WORK PROFILE',
+      '   ' + profileLine,
+      ''
+    ];
+
+    if (arch && c) {
+      lines.push(
+        '4. THE AI MODE',
+        '   ' + archLabel + ' \u2014 ' + archDescriptions[arch],
+        ''
+      );
+      lines.push.apply(lines, qBlock(5, 'q4'));
+      lines.push(
+        '\u2500'.repeat(64),
+        'THE LEADERSHIP QUESTIONS',
+        '\u2500'.repeat(64),
+        ''
+      );
+      lines.push.apply(lines, qBlock(6, 'q5'));
+      lines.push.apply(lines, qBlock(7, 'q6'));
+      lines.push.apply(lines, qBlock(8, 'q7'));
+      lines.push.apply(lines, qBlock(9, 'q8'));
+    } else {
+      lines.push('4. THE AI MODE', '   \u2014', '');
+      lines.push('(mode not chosen \u2014 questions 5 to 9 not answered)', '');
+    }
+
+    lines.push(
+      '\u2500'.repeat(64),
+      '',
+      '10. THE FIRST EXPERIMENT',
+      '   What would you test in 30\u201390 days, with which users, on which',
+      '   workflow, and what is the success metric?',
+      '   ' + ((u['fexp'] || '').trim() || '\u2014'),
+      '',
+      '\u2500'.repeat(64),
+      '',
+      '11. SIX MONTHS OUT',
+      '   If the first experiment worked and you scaled it, what would the',
+      '   team or delivery model look like in six months?',
+      '   ' + ((u['fstretch'] || '').trim() || '\u2014'),
+      ''
+    );
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const groupName = (u['group-name'] || 'Group').trim() || 'Group';
+    const application = (u['application-name'] || 'Application').trim() || 'Application';
+    const safeName = (groupName + ' \u2014 ' + application).replace(/[^\w\s\u2014-]/g, '').replace(/\s+/g, '_').slice(0, 80);
+    a.href = url;
+    a.download = (safeName || 'breakout-answers') + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+</script>
+
+</body>
+</html>
