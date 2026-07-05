@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding Sprint | AI-Powered Recruitment Assistant</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: #f8f9fa;
+        }
+        /* ------- LBS BRAND PALETTE -------
+           Navy #1F3864 primary · Red #D50032 accent · White · Ink #1A1A1A
+        */
+        .header {
+            background: #1F3864;
+            color: white;
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 4px solid #D50032;
+            position: relative;
+        }
+        .header-logo {
+            position: absolute;
+            top: 1.25rem;
+            left: 1.5rem;
+            height: 36px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        .header h1 { font-size: 2.2rem; margin-bottom: 0.35rem; font-weight: 300; }
+        .header .subtitle { font-size: 1.1rem; opacity: 0.95; font-weight: 300; }
+        .timer {
+            background: rgba(255,255,255,0.15);
+            display: inline-block;
+            padding: 0.4rem 1.25rem;
+            margin-top: 0.8rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        @media (max-width: 600px) {
+            .header-logo { position: static; display: block; margin: 0 auto 1rem; }
+        }
+        /* ------- TAB NAV ------- */
+        .tab-nav {
+            background: #fff;
+            border-bottom: 2px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .tab-nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 0;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+        .tab-btn:hover { color: #1F3864; background: #f8f9fa; }
+        .tab-btn.active {
+            color: #1F3864;
+            border-bottom-color: #1F3864;
+        }
+        .tab-btn .tab-step {
+            display: inline-block;
+            background: #e9ecef;
+            color: #6c757d;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            transition: all 0.15s ease;
+        }
+        .tab-btn.active .tab-step { background: #1F3864; color: white; }
+        .tab-btn .tab-time {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #adb5bd;
+            margin-top: 0.1rem;
+        }
+        /* ------- CONTAINER ------- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .scenario-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1rem 0 2rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .scenario-box h2 { color: #856404; margin-bottom: 1rem; font-size: 1.5rem; }
+        .scenario-box p { color: #856404; font-size: 1.05rem; }
+
+        .objective, .ground-rules, .concept-box, .section {
+            background: white;
+            padding: 1.75rem;
+            margin: 1.25rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .objective h3, .ground-rules h3, .concept-box h3 {
+            color: #1F3864;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+        .concept-box { border-left: 4px solid #D50032; }
+
+        .deliverable-card {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 1.25rem;
+            margin: 0.75rem 0;
+        }
+        .deliverable-card h4 { color: #0066cc; margin-bottom: 0.4rem; }
+
+        .ground-rules ul { list-style: none; padding-left: 0; }
+        .ground-rules li {
+            padding: 0.4rem 0 0.4rem 1.75rem;
+            position: relative;
+            color: #2c3e50;
+        }
+        .ground-rules li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #1F3864;
+            font-weight: bold;
+        }
+
+        .section h3 {
+            color: #1F3864;
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        .step-number {
+            background: #1F3864;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .question {
+            color: #1F3864;
+            font-style: italic;
+            font-size: 1rem;
+            margin-bottom: 0.6rem;
+            font-weight: 500;
+        }
+        .considerations {
+            background: #f8f9fa;
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            margin: 0.8rem 0;
+        }
+        .considerations h4 { color: #1F3864; margin-bottom: 0.4rem; font-size: 0.95rem; }
+        .considerations ul { padding-left: 1.25rem; }
+        .considerations li { padding: 0.2rem 0; }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.9rem 1.15rem;
+            margin: 0.8rem 0;
+            border-radius: 4px;
+        }
+        .warning-box p { color: #856404; }
+
+        .hint-box {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            margin: 0.8rem 0;
+            overflow: hidden;
+        }
+        .hint-title {
+            background: #f8f9fa;
+            padding: 0.65rem 1.15rem;
+            font-weight: 600;
+            color: #1F3864;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.95rem;
+        }
+        .hint-title:hover { background: #e9ecef; }
+        .hint-content {
+            padding: 1rem 1.15rem;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.95rem;
+        }
+        .prompt-box {
+            background: #f0f2f5;
+            border-left: 3px solid #D50032;
+            padding: 0.65rem 0.9rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            margin: 0.4rem 0;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .hint-notice {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 0.9rem 1.15rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        .hint-notice p { color: #004085; }
+
+        .debrief {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        .debrief h3 { color: #155724; margin-bottom: 0.5rem; }
+        .debrief-questions { padding-left: 1.5rem; color: #155724; }
+        .debrief-questions li { padding: 0.25rem 0; }
+
+        .resource-link {
+            display: inline-block;
+            padding: 0.65rem 1.25rem;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 0.75rem;
+            margin-bottom: 0.5rem;
+            color: white;
+            font-weight: 500;
+            transition: opacity 0.15s ease;
+        }
+        .resource-link:hover { opacity: 0.9; }
+
+        .evaluation-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.1rem 1.25rem;
+            margin: 0.8rem 0;
+            border-radius: 4px;
+        }
+        .evaluation-box h4 { color: #856404; margin-bottom: 0.4rem; }
+
+        .save-status { color: #6c757d; font-size: 0.85rem; font-style: italic; }
+        .save-status.saved { color: #28a745; }
+
+        .notes-box {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            margin: 1.25rem 0;
+            padding: 1.1rem;
+        }
+        .notes-box h4 { color: #1F3864; margin-bottom: 0.6rem; font-size: 0.98rem; }
+        .notes-textarea {
+            width: 100%;
+            min-height: 90px;
+            padding: 0.65rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            background: #fafafa;
+        }
+        .notes-textarea:focus { outline: none; border-color: #1F3864; background: #fff; }
+        .notes-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; }
+        .save-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.35rem 0.9rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .save-btn:hover { background: #218838; }
+
+        .phase-intro {
+            background: #1F3864;
+            color: white;
+            padding: 1.25rem 1.75rem;
+            margin: 0.5rem 0 1.25rem;
+            border-radius: 8px;
+            border-left: 5px solid #D50032;
+        }
+        .phase-intro h2 { font-size: 1.35rem; font-weight: 500; margin-bottom: 0.2rem; }
+        .phase-intro p { opacity: 0.95; font-size: 0.95rem; }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 700px) {
+            .tab-nav-inner { padding: 0 0.5rem; overflow-x: auto; }
+            .tab-btn { padding: 0.75rem 0.85rem; font-size: 0.88rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img class="header-logo" src="https://images.london.edu/hxo16fanegqh/5tNwBwuMozfuwRZlqa9Yng/a5e0d5e2743d05dd4113ed1f5583b35b/logo.svg" alt="London Business School">
+        <h1>Vibe Coding Sprint</h1>
+        <p class="subtitle">Build an AI-Powered Recruitment Assistant</p>
+    </div>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tab-nav">
+        <div class="tab-nav-inner">
+            <button class="tab-btn active" data-tab="overview">
+                <span class="tab-step">◆</span>Overview
+            </button>
+            <button class="tab-btn" data-tab="discover">
+                <span class="tab-step">1</span>Discover
+            </button>
+            <button class="tab-btn" data-tab="build1">
+                <span class="tab-step">2a</span>Build: Rubric
+            </button>
+            <button class="tab-btn" data-tab="build2">
+                <span class="tab-step">2b</span>Build: CV Scoring
+            </button>
+            <button class="tab-btn" data-tab="build3">
+                <span class="tab-step">2c</span>Build: Interview Kit
+            </button>
+            <button class="tab-btn" data-tab="evaluate">
+                <span class="tab-step">3</span>Evaluate
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+
+    <!-- ============================================ -->
+    <!-- TAB 1: OVERVIEW                              -->
+    <!-- ============================================ -->
+    <div class="tab-content active" id="tab-overview">
+
+        <div class="scenario-box">
+            <h2>Your Challenge</h2>
+            <p><strong>Marmalade Mutual Insurance</strong>, a Dutch mutual insurer founded in Utrecht in 1897, is modernising. To lead the work, it's hiring a <strong>Senior Technology Manager — Infrastructure &amp; Analytics</strong> (the sample JD provided) — someone to own IT infrastructure and build the analytics backbone its AI ambitions will sit on.</p>
+            <p style="margin-top: 0.9rem;">Applications are pouring in — over 200 per role — and recruiters spend 60% of their time on initial screening. You've been asked whether AI can help.</p>
+            <p style="margin-top: 0.9rem;"><strong>Today you'll build a working AI-powered recruitment assistant in 2 hours — without writing a single line of code yourself.</strong></p>
+            <p style="margin-top: 0.9rem;">One thing to be clear about from the outset: the goal is <em>not</em> a tool hard-wired to this one vacancy. This job posting is your test case — the role you'll use to check the tool works — but what you're building is a <strong>general recruitment assistant</strong> that takes <em>any</em> job description and produces a rubric, screens candidates, and prepares interviews. A senior hire today, a graduate analyst next week, a claims-handling role after that. If your tool only works for this JD, it isn't finished; it should handle a role you paste in that you've never seen before.</p>
+        </div>
+
+        <div class="concept-box" style="border-left-color: #D50032;">
+            <h3 style="color: #1F3864;">Why This Matters (Recruitment Is Just the Vehicle)</h3>
+            <p>The point isn't to leave with a recruitment tool. It's to feel, first-hand, what it takes to build a <em>vertical, workflow-embedded AI application</em> — and to make the governance judgements that separate a prototype from something deployable.</p>
+            <p style="margin-top: 0.6rem;">Three questions to carry through, whatever you build:</p>
+            <ul style="margin-top: 0.4rem; padding-left: 1.3rem; color: #2c3e50;">
+                <li style="padding: 0.2rem 0;"><strong>Where does AI assist, and where must humans stay in control?</strong></li>
+                <li style="padding: 0.2rem 0;"><strong>What context does the AI need from you to be useful — and how do you pass it in?</strong></li>
+                <li style="padding: 0.2rem 0;"><strong>What makes a prototype governable enough to put in front of a regulator, a client, or a board?</strong></li>
+            </ul>
+            <p style="margin-top: 0.6rem; font-style: italic; color: #1F3864;">Recruitment is the scaffolding. The method transfers to claims, underwriting, compliance reviews, audit preparation, contract analysis, onboarding, performance reviews — any high-volume process that mixes judgement with repetition.</p>
+        </div>
+
+        <div class="concept-box">
+            <h3>What is "Vibe Coding"?</h3>
+            <p><strong>Vibe coding</strong> is building software by describing what you want in natural language and iterating with AI until it works. You don't need to code — you need to know what problem you're solving and how to steer. Your domain expertise is the irreplaceable ingredient; the AI handles the implementation.</p>
+            <p style="margin-top: 0.6rem;">This is <strong>context engineering</strong> in action — AI systems fail not because they aren't smart enough, but because they lack context. The more precisely you articulate your requirements and domain knowledge, the better the output.</p>
+        </div>
+
+        <div class="objective">
+            <h3>Your Deliverable</h3>
+            <div class="deliverable-card">
+                <h4>A Working Generative AI Recruitment Assistant</h4>
+                <p style="margin-top: 0.35rem;">Your tool supports the hiring team through three connected stages — from understanding the role, to pre-screening candidates, to preparing interviews. Each section ends in a debrief where we pause, share findings, and reflect together:</p>
+                <p style="margin-top: 0.5rem;"><strong>1 · Discover:</strong> Map the end-to-end hiring process. Define scope.</p>
+                <p><strong>2 · Build:</strong> Construct a 3-stage pipeline — JD &rarr; scoring rubric, CV pre-screening, interview kit — then test end-to-end.</p>
+                <p><strong>3 · Evaluate:</strong> Pressure-test against stakeholder concerns, design an evaluation, write a governance protocol.</p>
+                <p style="margin-top: 0.55rem;">Exact features are up to you. Think about what would genuinely help a hiring team — and what would make this tool trustworthy enough to actually use.</p>
+            </div>
+        </div>
+
+        <div class="ground-rules">
+            <h3>Ground Rules</h3>
+            <ul>
+                <li>Work in small groups — take turns driving, while others navigate, challenge, and steer</li>
+                <li>Describe what you want in natural language, iterate until it works</li>
+                <li>AI is an assistant, not a magic wand — expect to iterate, refine, and course-correct</li>
+                <li>You're the product owner: steer, sanity-check, and stay in the loop</li>
+                <li>Think expansively about scope — what would make this genuinely useful?</li>
+                <li>The goal is a working prototype, not production code</li>
+                <li>Your domain knowledge about hiring is the secret ingredient</li>
+            </ul>
+        </div>
+
+        <div class="ground-rules" style="text-align: left;">
+            <h3>Model & Settings</h3>
+            <p style="text-align: left; margin-bottom: 0.8rem; color: #495057;">In the Claude Chat interface, click the model selector at the bottom of the chat box and choose <strong>Opus 4.8</strong>. Open <strong>Effort</strong> and set it to <strong>Medium</strong>, and make sure <strong>Thinking</strong> is switched on. It looks like this:</p>
+            <img src="data:image/jpeg;base64,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" alt="Claude model selector showing Opus 4.8 selected, Effort set to Medium, and Thinking turned on" style="display: block; max-width: 100%; width: 560px; margin: 0 auto; border: 1px solid #343a40; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,0.18);">
+            <p style="text-align: left; margin-top: 1rem; margin-bottom: 0; color: #495057;"><strong>What these two settings do:</strong></p>
+            <ul style="margin-top: 0.4rem; padding-left: 1.3rem; color: #495057;">
+                <li style="padding: 0.15rem 0;"><strong>Thinking</strong> lets the model reason through a problem step by step — working out its approach privately before it answers — instead of replying off the top of its head. On the multi-step prompts later today (turning a JD into a weighted rubric, scoring a CV against it), this noticeably improves the output. Leave it <strong>on</strong>.</li>
+                <li style="padding: 0.15rem 0;"><strong>Effort</strong> controls how much of that thinking it does. Higher effort means more thorough responses, but it's slower and uses your usage limits faster. <strong>Medium</strong> is the sweet spot for this sprint: enough depth for the hard prompts, without burning through your limits in two hours. You won't need High, Extra, or Max today.</li>
+            </ul>
+            <p style="text-align: left; margin-top: 0.9rem; margin-bottom: 0; color: #495057;"><strong>A note on Claude Fable 5:</strong> you'll also see <strong>Fable 5</strong> in the model selector &mdash; Anthropic's newest and most powerful model. Don't use it today. It exhausts your available usage very quickly, and for what we're building it's overkill: Opus 4.8 handles everything in this sprint comfortably. Save Fable 5 for when you genuinely need frontier-level reasoning on your hardest problems.</p>
+        </div>
+
+        <div class="hint-notice">
+            <p><strong>💡 How This Works:</strong> Each section has hints and example prompts. <strong>Don't struggle unnecessarily</strong> — the goal is to experience the full build cycle, not to figure out prompting from scratch. Use the hints liberally. The learning is in the iteration and refinement.</p>
+        </div>
+
+        <div class="ground-rules">
+            <h3>Workshop Resources</h3>
+            <p style="margin-bottom: 0.9rem; color: #6c757d;">Use these materials to test your recruitment assistant:</p>
+            <a href="data:application/pdf;base64,JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUiAvRjMgNCAwIFIgL0Y0IDUgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0Jhc2VGb250IC9IZWx2ZXRpY2EtQm9sZCAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjIgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iago0IDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhLU9ibGlxdWUgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0YzIC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKNSAwIG9iago8PAovQmFzZUZvbnQgL1phcGZEaW5nYmF0cyAvTmFtZSAvRjQgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iago2IDAgb2JqCjw8Ci9Db250ZW50cyAxMSAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCAxMCAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNyAwIG9iago8PAovQ29udGVudHMgMTIgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgMTAgMCBSIC9SZXNvdXJjZXMgPDwKL0ZvbnQgMSAwIFIgL1Byb2NTZXQgWyAvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1hZ2VJIF0KPj4gL1JvdGF0ZSAwIC9UcmFucyA8PAoKPj4gCiAgL1R5cGUgL1BhZ2UKPj4KZW5kb2JqCjggMCBvYmoKPDwKL1BhZ2VNb2RlIC9Vc2VOb25lIC9QYWdlcyAxMCAwIFIgL1R5cGUgL0NhdGFsb2cKPj4KZW5kb2JqCjkgMCBvYmoKPDwKL0F1dGhvciAoTWFybWFsYWRlIE11dHVhbCBJbnN1cmFuY2UpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyNjA3MDQxNDQ4NTQrMDAnMDAnKSAvQ3JlYXRvciAoXCh1bnNwZWNpZmllZFwpKSAvS2V5d29yZHMgKCkgL01vZERhdGUgKEQ6MjAyNjA3MDQxNDQ4NTQrMDAnMDAnKSAvUHJvZHVjZXIgKFJlcG9ydExhYiBQREYgTGlicmFyeSAtIFwob3BlbnNvdXJjZVwpKSAKICAvU3ViamVjdCAoXCh1bnNwZWNpZmllZFwpKSAvVGl0bGUgKFNlbmlvciBUZWNobm9sb2d5IE1hbmFnZXIgLSBJbmZyYXN0cnVjdHVyZSAmIEFuYWx5dGljcykgL1RyYXBwZWQgL0ZhbHNlCj4+CmVuZG9iagoxMCAwIG9iago8PAovQ291bnQgMiAvS2lkcyBbIDYgMCBSIDcgMCBSIF0gL1R5cGUgL1BhZ2VzCj4+CmVuZG9iagoxMSAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAyODgyCj4+CnN0cmVhbQpHYiEjXF8vZTlpJyMhSFlxRCdMMjk0Q0ZhVTg2UVktZVwxNDo6dVVXXGJINWdPRyM+W0R1ZT1EVlk5J0UyK1osWkBvJj5LJiRBbU4yQy9FYXBVWF9IN1IwMDoibilDTSxDNnRwZixrJiQ2PF5IPShqUj8wU0MuNVFNYShRKlQxbyc1UjI3YSxdbD8iUWMsXmliVU0yUidjZm04K05sZUJ1cWElUmAzOmBlSDMiJ0NabykpbFgpOktlKWhSUD4uODQ9YGVdSUdGb2RWM1NMLFAicUxyS2xgS00iMUEmTipMWE1JWFg8YHJAZi9iVVlsaz1yaC40cEdrXlZJXzlgUkZyb0EkWiRhSCNJSUgqT09hbzdQUkNyMlc3VlZaUFcqV1o6aGxxUFAiQ2VBJFQtYyhwbTUxQWBQT2FKJlVIJid1bjY0MV5CWEg0VWlTXi90OGtAYUMxbiowYWJFQV10VWRuYT5SMCdBaiVoQiwvVUUjZDk4KW9qXFtxVUMwUVVmZigmJyo2YWNQZFtVSU9BWV8rWEM+UmlsImtCLio5My8/Q3VZZjZPTEZyNF5FNWkqbnQuUlVbbVddXEJdYCRlcGw4LSFJPGZwX2hzW1hyRTEvSz9qK1FoNyVVNTk8PzRiQ08zMTpZQmwzTiFfVDFrWGRsQCJmKmRZOE1taFctYEpsUSlPUyo0LVpyJWA4VTlDMVcmTTliaiJbT248W0RxVkY9TmwpbiFqckBvP2onS200TUpCWnUuS0ApbUJSSE4hIStAUkhaY2wzMiw4XVgrZDVxbi4jYUNkT0xWOiwvWVtsJTVlbzI6WFA4cVZiXElKUDU0TkFSV1UnMi1yamMjLjVwZFxoK3FVbmdFRi9FcU9pPEBQK1kmXDJKIWY+NDlGW1JbLlI9Qk9wP1dbYSI8UTIlJUU9LCxTI2IkKDRlNS8iIl9XUVAqaypFbC5eRklxXWRvUDE0M0MmJyI/PEpqJ25GMlVNW2hfQikwKy9PMlJKIlVwNSRaL0xvJzBMZnNhW1hBZVBINW9TTiUnMHVfNC0zVkJqUF8lbTRHLVQqYSFOXERDKkRQWGA+aiJfazUrbVgzRkEybSo6blAiKnRvUyg1IyQvUypPLUchJj5OVyxwNFFSQ2wjVEsrUyNtSChpbGsyLV45KkEtcmhVVDZEQ05oJiQ1WWFyXVlMM0JedFMpcCFkcEEyIWJNJEkmWDAwbV5KJnFMRzBia0teYnBoZ2dfUy9LMFRQMmxOVUkscVciLD1UaDZgNlQuNTtJYlpqPF06TG8nbHBaOVc2WkxpSjhdLUtwJ2widUc2LzliP19EPW5XKTxVanQlZGZgaDokQm5GXEcsKVA/JUU0PSRvP3E1ZDwyb0cyVDJNNWAjP0k5dHInYEBrO1NBOiJHdWtQZiYiY2RPMmwyV1YwJDohR0RDbkxmIklhckIvXDhrPUpPNEk/cmwzcVZVbElxUSVDKVRZQyovcDlVZGxrNWxCW0tSUTpWYD8qJ0NCP1dBPy5BJks+U2g+Tk4hMkFRak5KXCwzXkJGUzQlcEkjPU4mK15JWSFNQUBpbCU6XTZNMFVxbWhxXz8zZj1ubFo5N0dZOSdvRCpUWVVnWVYlPktTY1ZjNHNPRmc3cFk8YzIsSW9NR2dUV04hSGdhRExrJW9WXFI2WERGQChmZGkucS4/TkZgS2RnPCUpWSJZaXRbVExKSTptaEpDKUVNWFMkXDAyN2ZvN1w+YmFoZUhePE5wWSVBUUNpOHFNYVQjOGhLcCwoZ2ViPGAsVU8uUlUvQiY5QFkwITF0YkpYQzlST2VVJUFgX1ZiUWUpU0JRLFpSKWUoXkQvTFZfPlhaN0QwLjdBPWZGNldNKFMwV204Q2tdOTkjSltKQmhKODh0ITJnKyZkYEw6czJmWjZnLGU/PjJlQ2EwK241RltpVjgpSXBPZlFzJD1KN0VbZlE4TDJmXTVUYyxsRmI2SzAwIU45SEE6K0BEOkwzcDgrQzxnPUtwSilPJ0tFS3VHbG9QUGZJaydtMCNKTCFlbXR0KS9nXmk0bVM8X2MqZVEoYiE1bzU8JUJaUD5tUSJXUUdeZ1tCVUxhLU5XaHA+LCJvZF90ISgyZ05gVUBycERJKltrTmJmc1VUITBVJExCWmRvXnFjKWEnU1tnODk0MVQyKFZvclYlUzhdUVIpPDZbKGcyN1VyJ1otKkYxYFYzSk47WUw6X1JHVEFZQkwxQV9FYHFmMl8zOzNmZXNCayNUX19YXENvLCkkXjR1PzY1QjhAaFs/PDZlOzhBbzkpL0FxOVowQy1ZKlpMWUdWPjEtZFkpJGssLXJXRDteTSosYCxkQUVKYCwkVVY4MigtNTtqS1crMTg7M3JPRElSSWNFWmw3T2RlMUNBTj1VajQ/Rms1W188TzIibERcYFojQildPU1jSWJfUUBnR2k9K2k0OWknUVJpKidLZEQ+Xm5abydZcWE1N0RbUE5bUkpOWV9iZztdWkwlMVhtJ0ZOJi1UTXFPWHQ5S1MhPSRCVFZQYW9CPVg3aywtXDciMVZATikyaDIsKWJzPilxdDU9RUFVNDZYKj9aR09dbWVOI2UzQTgiV1tocyMoOj4nbW4nP0xgNjtYPE0/WE81OTZJVlI7UGtXYklBVVMoWFNdbj1DZyRFQCUsUCFwZDdHZFlzMSJacyFRUGsyPjlIQSEuTl8lc0JyITZBSzQzbUpdIldVUVcjK3RmNDw8YCw5Si4vMENOJlA1P1ZHVSc2PTxMZkwxSDJhU1s8XHIlbS5MOCFNZ2pGM1dWWy4lbEtyO2RvZ11WRSkuVDlEOyRWMTgwLCFyJ1MrQyNNLi5yKkJsXmJLZnJoO2VNR0w7JkFYK1ZXUltAMF83PVVHNyg5XXE+UUFfaC8uNlFhLSUpO0Q6Ij07MnRBIjlBKD5tVF9fbWQxMWdUL1ImJi5mJkRsSEJDaG5OKTMxPWwpMEgjV0FUZzhDSzVhJCxVM21nUkFxaF5BIlMyKm1mckVzYnMsSyUjJWVhN0FHSWdKdV0nVjZANSR1VU8jcVYzTT8qbkZlaTxxLV5kZGdAMD5JTm5SVTBCdGgyPSU5M0Y0Y1lsQyskKltFOD5oP2YiXiU/LihcJzVpXnJKUm1YZSI4V2FHNSFtb1ljXDtMOmpfQnJmLzNnMWk8aUF0biZpa1hmT0ZSQ1YmKG05IkJqTTo0Mik1amdzVzs5TmxScW05YlMuQjVSVTcmcihWXFVlI1c/Jkd1UWJ0bzJFQGJCJVIqYyYqXWxUWFJuYE1xXE4iVkoxY1FWWV1OSVVkIkZOWyYqaz1XMjcnNy9AJkhCLXRqWUo6PG9mTXFaUDBEWjZHT28yYzFLKSJVKXNzJ11qKDI1MC5rR2g6IyQucVA1cWdXaEtgQVwmZDpHZGdXaUdAL0VSPzIqMiNKPCVmSzVcZjAyTW42X0NjZSRzV2xlcjVQOTJjXSRAKlRMbCxYRENzMHImTHE0dTwkJiM1JGBKb2hTcVRCUUkpY2E+YyZgLWNGLTxIV2ArdWBVJEE7PHBrdUFkW0tqOyk+bSloVyFlYyxqa1ZkbTQpJF00ayIjJGxdN1JxUFoqNXBlWSMyNmJXcGJeZnM4K2AwYTNgajJYWzZBM3JKLT5PcU5sO1VfMSFzdCZmbHBsUDM+SWhMcjNraDEjN0FPQihGJlNVOGkkO2VSLWBePCFWKHFDOUglRVIrRmVRPmFVcF9aWm1TOzYsNC9KR3NANCZRUWBManBcQjhpOT1OLl1eKGlxbDA9OV9zM2tlREoqJVxLbT43NXNdJGZTNidsOGAzRCxVNFxuKiVrRWtdKTU9JmwsRVomXUh1QjJ+PmVuZHN0cmVhbQplbmRvYmoKMTIgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMjgyMQo+PgpzdHJlYW0KR2IhI145bG8mSycjIUkwb09ZTSU+dEdWVzs2bENMbSkwUmZgLy8tLjhTWTtSSk9yRE4oYUtyS1slYV0kbmJYNlMjRyFnZjo4RUxsQU9ScFAhcEdePj84aWojKzkpRUIpLnVBIzFPPSRZOl87Jms6O08ublV0SWhVMU9KaWtnJXJ1Q2hgMHFdZiU1N0coXytmaShJYitKZC9hMz1TcV9sUm0iMWk/ZWg8KFJeIVR1LSg9NklBbE5iZnNVMDByNT0ySlE5TWFZdW48RTtIODFqPjMiR3E9Z084K11ac3BxQHEmazw2RGZSV2NTdDM5cDNtXy9sKEQ4W0VwOm0qLlBCNXFhNU1hLGZEbigoM11CQSZOPDxhXyZVQj5WQmxPRHBdW0dfPy0zRE5kLiZSP0ZcXE5DIixAL1YtXzZUX2AlRCljZiVzWyopW1hFWD1sMl1PMmRmKl5PV0xwcXNCIVRVRi1pTHEsbz9WY1xDcFswLFc5QCNZK2RfbC48OSVrSHBnJG1kJkttbzxWNU02RWImYFMlYlhXJ2ZjXGNNJl5dXEE3IV4+PT1VQ0RXamwiVC1iIixtYlQpSSUrZnVNb1xXbSJgUEQuRiUtZDEhYmM0PXNiU1grRy9nNjRwPm9jVUJIZSdkbjEpPm4zNCYmTVpRVyhjJk1kLSU9bj4kSCZcaD0jW29AQWNPaCRlJltOMypOPTtWJkw6UjxnQl1xPydxXz9NVztBMG08aHRxUHRVOz1iI1JdKTFtRnRFQV1kUzpQZD1CSzRgX1FzQGtzPScnPSddNmg6RCkrLjI+YG1SRUQmQjw5NEtYRz8wVXUyR1FNaElyRVhyVDBQXEVEYFloNnE4czVWL1BVZE1xJ1khX2lhL0tPLVdoZVFTcW1Ga3A4KDosNUFtK25HWkNORm5SNGNFb0l1RVQ+WWs2LSonVGRLPTMqQkkmJWF1ZSVvU2t1NSpKcjxPaERxZDlEVm0iPj1zZyw+bzk6JDcnb3JoS3NccTRiYkxxdSVuXEovQUQoV1EzXEZmVS9uZjAyXT0tLUJMMU1cYjtjcCxjRUxJaGAoK1g7XUo9S3BoMmlxLTEsImgpdSROaCo8ZkFja0VcR1heSVtvK0peayZkO05iJD1vQjJUcCg8TnVVcUtPaSw4RmdaS1MsXyxYNTxyakE+JGA/O0VSUTlvOmBuRko5PTxFPXBjQ3VfYjlrZFkkKlxZLVZWRzMrIikqYjprWCM/Si8jOV5ZZVkrT0ZWNkAmWyxYQTE5KCYxIk4zb0M0bl5BX0tBPXA2YUkvT1VyWEY9OE4+Tys3OkMjU2NZXTNmIig+YUk3bTBEKVJ1L3IpTlU7QHNcXmBUXWsiaWI+RTIvZTgxT2kiYzhjTExbU1FqPjpqL0pkdUs9cENbakYpciVJdG5DWkY9dVBlOmZoRmQnK2U6dWFBKl88QVJWRSdaP1Q5SyEuOGwlLypYJFFSWDtqQWpFRlBHT3EnM2llcSMnMDdhZlBIZTRDI2E4JnBAPmQzOCZMIyluX09NKSdfXT1AaU8wIilgWzpAOmVVXSlsPkVTP2JkdCcpbGwqUDxQaiQ4R2gjXiUmcDImNVc8W2RAa2pSWE5cXGdiSFRbJGU8Pl0mZ0sqXz5aLTdMLTVHcGcoOWQjbGZALDZXUFM7TWE0cmhuYnA9bk1XcSNDWnM4bmlBKy8qLltqVVZrbXBDSiUrNFwmKCpKQ1BbOT86Y0xwO2NMbmJVSy51VFEwNGgoK21Kcyw+YGBibycvbCcqZ0dicThcJGw8REdOSCYwal9TPV03TytxKzhJMygzSDheJmwlWXNBbm1ALEVZOTJkY2I8IlFHQGZhUSlKLTY4Zj1qI2NuWk42ZC5VUjU7MVtETT1RMWJZbUxVTV9cOlknYCJJY11yZWYpTCQrbFt0b1txPWBAWEFmM0hcWnE9ZUtqPV5aXVRJOW41OlYwPC0+W1socnNhaVo/dD8oMy0mSHA2ckVOL0sjW0glUy1gSWs+SzcvZkhYMUYuXHF1UUg7SE9vdVBCcm1xTyFwOSR1YDs4NTRmLCtaPEZmOzc7VUJfZjljdFsqcjorXi5OYD0lWjJGJzNaSGIuLl4rYjxpKmQkUlBVdV80SjNGJnJsZEU7bylnREUqYVZxR0EwIlFoVSxFKSEwSyhjP11oZ0M5V2siS0QlYVhTWG9cbixpYUo3KDdLISJLIUEudC5RXD8jajMlSkxrbTNMaCpkOHBAWGJtUEJWM1peNi1SbSEoVE1fMyxgPSNuRlg1Ylw/VlkoVURSISNIazUiZ05WMWlEXSRKNG9OQTE8MGBddDJeSl5zOEBbWVhSZiQ+QGhhaVlfQzBMSmtoU1xJU15scmAyLyYrJj4hWSdfaVh0PjZbPEc1IzY1Y1t1WFQiVVg+SEBiPUJKTmY7TlBVZHJ0amVSN10pZCgwLkpPazo0TUgtJDdhKSJNZ2ZDZmBUZWEzPFJZWlJMOmcmJyY2LVsnQnRrOGY9czhUXUM0bnNiUXRyWDcqclVHbkdDLW9hLFNLbk0iLUEiZGtxckxYLFI+KCMmU3VfZCdiPEE/ViZnWF4nNkVMT3RvZCgzNGAhPWlRU3Mxb2BIc3BcUTJYbUtSN2VOYVUnLUArXV9iXz8/S051PytLTV9cWzZMW0RgNC8mNjEnKFAjNjQoaWhOUT41Wl1oI2pOPklUYGtscUFcM29sKjpeOTBDP1dtW3QhNTdaRSFvJjJzcFtPbSRhUEY4ZFlFLTJIMGs+JFM+QC1bITdNcTpxLCFyLlNVRGFpPDJpJzs+VDsiYjxIN1pCVEtjVjswQmpyQGI7KkNAQik8Lzw7KV1lRUc9PFglNlg2WC1mKzdLRmdBaURGOGYzcDFyVV5dbmAxOFlIb0MlRjomLT0jU1s6NTlvWCwzJlxWbVphNEIucVg6aTswKk1AODsubS0qRl0nMU1OREdUYi89WXRZZjZqYlBgI2ldLG0+PiwhQ1toXDEsIWdwY2dhZF03MDJVSyVVbXNbO2ZUXFhqK2A2UV5OTFQ3aV05MmhaZFlJWEdHTGxGJzFQYUB0ZDpAO2FxXUAoXVphJmN1bEk8RG9jOjhecSYwI1tTXktSJDQ6OS9LcjQmJ11kRikqT1UoTlhmMlhqZjU8UTIpKk5RYWRHNjI2OkA4Si9rZiJWOS90dUxYT0ZlPk8jWCZRTyxoW0VAKzEyaU11U0hlUVYvQExCPTs+cSdQa2M8O0khOSkrTDxkSWRBR2FgTFlzPypCX2w2TypqWEJdZzlyRipBWGE0WF0tJS4iaSs/YUlKJFBST0lpRlNfWCpdLElIWzY1TitTTmVPND5STTxCU1AqP186LSZuXTZqTz5dO3J1cWFLV15cPFllWjk1JkctJWs3Oig9MkBTKUwsTnIpRkVZXShGYzkrbiJJJyIiRjhCaVtaJktucyNBVUZgYilpQ2ZAIW09I2pkMDAwVjVsXFlPdEBqUGc7aC46QCwsLjlbRDMqXkJ0TFshY04sMlhIX3NeTDZFLzYsYTAtV1IzRUszdGxvR09iPD8mXEEqXlNLVV5XJCE8YCtybSMqMkdgR0s0cSIlZU9iOFxaMHAsKzlQZ0EoVGYiREpqViFpVmk5aWg0XFdWNmhZQj0lXzBnalJVYz9QRm4zRV1hSyNAS04hQj9ZO29XZVZ0RGxjcj1OUU5ldCc9ZVgqP0RLPj1dOm1QUkEvLitkZEBhPylNU2wsLnUvbj5kTF1VYHJsRTwhcU9vXilWK21TKFl+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDEzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDA2MSAwMDAwMCBuIAowMDAwMDAwMTIyIDAwMDAwIG4gCjAwMDAwMDAyMjkgMDAwMDAgbiAKMDAwMDAwMDM0MSAwMDAwMCBuIAowMDAwMDAwNDU2IDAwMDAwIG4gCjAwMDAwMDA1MzkgMDAwMDAgbiAKMDAwMDAwMDc0NCAwMDAwMCBuIAowMDAwMDAwOTQ5IDAwMDAwIG4gCjAwMDAwMDEwMTggMDAwMDAgbiAKMDAwMDAwMTM1MiAwMDAwMCBuIAowMDAwMDAxNDE4IDAwMDAwIG4gCjAwMDAwMDQzOTIgMDAwMDAgbiAKdHJhaWxlcgo8PAovSUQgCls8ZDFmMGU0YjYzNjUxNGFlNzhmZWVhN2U3MDQ5ZTk2NzE+PGQxZjBlNGI2MzY1MTRhZTc4ZmVlYTdlNzA0OWU5NjcxPl0KJSBSZXBvcnRMYWIgZ2VuZXJhdGVkIFBERiBkb2N1bWVudCAtLSBkaWdlc3QgKG9wZW5zb3VyY2UpCgovSW5mbyA5IDAgUgovUm9vdCA4IDAgUgovU2l6ZSAxMwo+PgpzdGFydHhyZWYKNzMwNQolJUVPRgo=" class="resource-link" download="Marmalade_Mutual_Job_Posting.pdf" style="background: #0066cc;">📄 Sample Job Description (PDF)</a>
+            <a href="https://www.dropbox.com/scl/fo/mlq0d5a0dqzayntgs5k69/AIn_X59nXRGYYsL5uBdDgC0?rlkey=u4sbwnyynr4s8b9ehqr1xsvdh&dl=0" class="resource-link" target="_blank" style="background: #28a745;">📁 Sample CVs (Folder)</a>
+            <p style="margin-top: 0.75rem; color: #6c757d; font-size: 0.92rem;">The sample JD is for a <strong>Senior Technology Manager — Infrastructure &amp; Analytics</strong>, the exact role Marmalade Mutual is hiring for in this exercise. The CV folder contains a mix of candidates at varying levels of fit.</p>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0 0.5rem;">
+            <button class="save-btn" style="background: #1F3864; padding: 0.75rem 2rem; font-size: 1rem;" onclick="goToTab('discover')">Start Section 1 — Discover →</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 2: DISCOVER                              -->
+    <!-- ============================================ -->
+    <div class="tab-content" id="tab-discover">
+
+        <div class="phase-intro">
+            <h2>Section 1 — Discovery & Scoping</h2>
+            <p>Before you build, understand the problem.</p>
+        </div>
+
+        <div class="section" style="border-left: 4px solid #D50032;">
+            <h3><span class="step-number" style="background: #D50032;">0</span>Translate It to Your Business</h3>
+            <p class="question">Before you touch the recruitment case — what's the equivalent process in your own organisation?</p>
+            <p>Recruitment is just the vehicle. Take <strong>3 minutes</strong> at your table and pick, from your own organisations, a process with the same shape — high volume, a mix of mechanical and judgement-heavy steps, governance constraints, and a document flowing through it. A sentence or two each is plenty; you'll come back to it throughout the session.</p>
+
+            <div class="considerations">
+                <h4>A Few That Fit the Shape</h4>
+                <ul>
+                    <li><strong>Claims triage</strong> — claim → evidence check → fraud flag → payout decision</li>
+                    <li><strong>Audit engagement acceptance</strong> — client info → independence check → risk assessment → go/no-go</li>
+                    <li><strong>Contract review</strong> — contract → clause extraction → redline → negotiation position</li>
+                    <li><strong>Customer onboarding / KYC</strong> — document intake → verification → risk scoring → approval</li>
+                </ul>
+            </div>
+
+            <div class="warning-box" style="background: #fff3cd; border-color: #ffc107;">
+                <p style="color: #856404;"><strong>Pick one and hold onto it.</strong> Every time we discuss recruitment today, mentally translate it to this process — by the end you should be able to describe how the method applies to your own case. That's what you'll leave with.</p>
+            </div>
+
+            <div class="notes-box">
+                <h4>📝 Your Parallel Process</h4>
+                <textarea id="notes-step0" class="notes-textarea" placeholder="One sentence: which process in your business has the same shape? What flows in, what flows out, where are the judgement points, and what's the volume?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step0" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step0')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3><span class="step-number">1</span>Map the Hiring Process</h3>
+            <p class="question">What actually happens, step by step, from the moment a role opens to the moment a new hire joins the team — and beyond?</p>
+            <p>Before you can automate any of it, understand the process as it exists today. Map it from start to finish, including the parts that are judgement-heavy and the parts that are mechanical.</p>
+
+            <div class="warning-box" style="background: #d1ecf1; border-color: #0c5460;">
+                <p style="color: #0c5460;">Spend 10–15 minutes as a group. Draw it on a whiteboard if you like.</p>
+            </div>
+
+            <div class="considerations">
+                <h4>Questions to Guide Your Mapping</h4>
+                <ul>
+                    <li>What are the discrete steps from "role opens" to "candidate starts" — and the onboarding/early-tenure stages after?</li>
+                    <li>Which steps are time-consuming but relatively mechanical?</li>
+                    <li>Which steps require nuanced human judgement?</li>
+                    <li>Where do biases typically creep in?</li>
+                    <li><strong>Which steps require a prediction?</strong> (e.g. will this candidate succeed in the role? will they accept the offer? will they stay?) AI can support predictions, but those predictions need to be validated and monitored.</li>
+                    <li><strong>Which steps require content to be generated?</strong> (e.g. a scoring rubric from a JD, a shortlist summary, a tailored set of interview questions, a rejection letter) Generation is typically where AI delivers the most immediate value.</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>Prediction vs. generation matters:</strong> These are different kinds of problem and deserve different kinds of scrutiny. Generation tasks can usually go live with lighter guardrails — a human reads the output before it's used. Prediction tasks (especially about people) carry heavier regulatory and ethical weight: under the EU AI Act, AI systems used in recruitment are <em>Annex III high-risk</em>, and the strictest requirements apply precisely to predictions about candidates.</p>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>Degrees of automation:</strong> Not all tasks should be automated equally. Some are good candidates for full automation with human oversight — checking qualifications, certifications, educational background. These are objective, verifiable criteria. Others — judging cultural fit, gauging motivation, weighing trade-offs across the team — need experienced judgement. Good automation is knowing where the line is.</p>
+            </div>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step1" class="notes-textarea" placeholder="What steps did you identify end-to-end? Which are mechanical vs judgement-heavy? Which require predictions? Which require content generation? Where do biases creep in?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step1" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step1')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3><span class="step-number">2</span>Define Your Scope</h3>
+            <p class="question">Which steps will your tool take on — and what's deliberately out of scope?</p>
+            <p>You could build many tools here. To keep everyone moving, we'll all build the same three connected stages — the output of each becomes the input of the next, which is how a pipeline creates leverage.</p>
+
+            <div class="considerations">
+                <h4>The Three-Stage Pipeline We'll Build</h4>
+                <ul>
+                    <li><strong>Stage 1 — JD → scoring rubric.</strong> Paste a job posting, get a weighted rubric — with room for the hiring team's soft context and editable weights.</li>
+                    <li><strong>Stage 2 — CV pre-screening.</strong> The rubric scores each CV with evidence and surfaces suggestions, not decisions. Recruiters can override, with a reason logged.</li>
+                    <li><strong>Stage 3 — Interview kit.</strong> Rubric plus assessment produce a tailored kit for one candidate: structure, probing questions on their gaps, and a scorecard.</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>Why this particular carve-out:</strong> these three stages cover the parts of the process that are highest-volume and most repetitive — where automation delivers the most leverage — while keeping humans firmly in charge of the actual hiring decision. The tool prepares the ground; people still do the hiring.</p>
+            </div>
+
+            <div class="considerations">
+                <h4>Two Questions to Settle Now</h4>
+                <ul>
+                    <li>Where in each stage will the hiring team inject context the AI doesn't have?</li>
+                    <li>What's deliberately <em>out of scope</em>? (Offer letters? Salary recommendations? Final hiring decisions?)</li>
+                </ul>
+                <p style="margin-top: 0.4rem; font-size: 0.92em; color: #495057;">The other design choices — how stages connect, what guardrails to add — you'll answer by building in Section 2 and by facing the stakeholders in Section 3. Don't over-plan them here.</p>
+            </div>
+
+            <div class="warning-box" style="background: #d1ecf1; border-color: #0c5460;">
+                <p style="color: #0c5460;"><strong>🎯 Scoping discipline:</strong> The failure mode is too much ambition. A tool that tries to do everything will do nothing well. Pick the narrow thing that's 80% mechanical and make that excellent. The other 20% is what your recruiters are for.</p>
+            </div>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step2" class="notes-textarea" placeholder="Where will the hiring team inject context in each stage? What's out of scope?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step2" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step2')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="debrief">
+            <h3>Section 1 — Debrief</h3>
+            <p style="margin-bottom: 0.7rem;">Pause. Let's share what we found before we start building.</p>
+            <ul class="debrief-questions">
+                <li><strong>Scoping choices:</strong> What did your team decide to include — and what did you deliberately leave out? Why?</li>
+                <li><strong>Automation boundaries:</strong> Where did you draw the line between AI doing the work and humans staying in control?</li>
+                <li><strong>Surprises:</strong> Did anything come up in the discovery phase that changed how you think about the problem?</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin: 1.5rem 0 0.5rem;">
+            <button class="save-btn" style="background: #1F3864; padding: 0.7rem 1.6rem; font-size: 0.95rem;" onclick="goToTab('build1')">Continue to Section 2a — Build Stage 1: Rubric →</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 3a: BUILD — RUBRIC                       -->
+    <!-- ============================================ -->
+    <div class="tab-content" id="tab-build1">
+
+        <div class="phase-intro">
+            <h2>Section 2a — Build Stage 1: Role Analysis &amp; Rubric</h2>
+            <p>From a job posting to a weighted scoring rubric.</p>
+        </div>
+
+        <div class="hint-notice">
+            <p><strong>🔄 Expect to iterate.</strong> AI rarely gets it right on the first try. Each stage is a conversation: describe, review, refine. If the output isn't good enough, push back, add context, be more specific. <em>Today, as you build, you are in the loop.</em> The design question for the tool itself — once it's running on real candidates — is a different one: should the human stay in the loop for every decision, or sit on top of the loop, intervening only when the tool flags something it can't handle? You'll return to this in Section 3.</p>
+        </div>
+
+        <!-- PIPELINE VISUAL -->
+        <div style="background: white; padding: 1.5rem; margin: 0.75rem 0 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="color: #1F3864; margin-bottom: 0.4rem; font-size: 1.1rem; text-align: center;">What You're Building: A 3-Stage Pipeline</h3>
+            <p style="text-align: center; color: #6c757d; font-size: 0.88rem; margin-bottom: 1rem;">Each stage feeds into the next — the output of one becomes the input of the next. <strong>You are here: Stage 1.</strong></p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
+                <div style="background: #e7f3ff; border: 3px solid #0066cc; border-radius: 10px; padding: 0.8rem 1rem; text-align: center; min-width: 170px; flex: 1; max-width: 250px; box-shadow: 0 0 0 3px rgba(0,102,204,0.15);">
+                    <div style="font-size: 1.6rem;">📄</div>
+                    <div style="font-weight: 700; color: #0066cc; font-size: 0.95rem; margin-bottom: 0.2rem;">Stage 1: Role Analysis</div>
+                    <div style="font-size: 0.78rem; color: #495057;">
+                        <span style="background: #fff3cd; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.72rem;">INPUT</span> Job Description<br>
+                        <span style="background: #d4edda; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.72rem; margin-top: 0.2rem; display: inline-block;">OUTPUT</span> Weighted Rubric
+                    </div>
+                </div>
+                <div style="font-size: 1.4rem; color: #6c757d;">→</div>
+                <div style="background: #fdeef0; border: 2px solid #D50032; border-radius: 10px; padding: 0.8rem 1rem; text-align: center; min-width: 170px; flex: 1; max-width: 250px; opacity: 0.55;">
+                    <div style="font-size: 1.6rem;">🔍</div>
+                    <div style="font-weight: 700; color: #D50032; font-size: 0.95rem; margin-bottom: 0.2rem;">Stage 2: CV Scoring</div>
+                    <div style="font-size: 0.78rem; color: #495057;">
+                        <span style="background: #fff3cd; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.72rem;">INPUT</span> Rubric + CV<br>
+                        <span style="background: #d4edda; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.72rem; margin-top: 0.2rem; display: inline-block;">OUTPUT</span> Scored Assessment
+                    </div>
+                </div>
+                <div style="font-size: 1.4rem; color: #6c757d;">→</div>
+                <div style="background: #e8f5e9; border: 2px solid #28a745; border-radius: 10px; padding: 0.8rem 1rem; text-align: center; min-width: 170px; flex: 1; max-width: 250px; opacity: 0.55;">
+                    <div style="font-size: 1.6rem;">🎯</div>
+                    <div style="font-weight: 700; color: #2e7d32; font-size: 0.95rem; margin-bottom: 0.2rem;">Stage 3: Interview Kit</div>
+                    <div style="font-size: 0.78rem; color: #495057;">
+                        <span style="background: #fff3cd; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.72rem;">INPUT</span> Rubric + Assessment<br>
+                        <span style="background: #d4edda; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.72rem; margin-top: 0.2rem; display: inline-block;">OUTPUT</span> Tailored Questions
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3><span class="step-number">3</span>Build Stage 1: Role Analysis &amp; Rubric</h3>
+            <p class="question">How do you turn a job description into a scoring rubric?</p>
+            <p>Build an interface where you paste a JD and get back a structured rubric — weighted categories, specific requirements, red flags.</p>
+
+            <div class="warning-box" style="background: #e7f3ff; border-color: #0066cc;">
+                <p style="color: #004085;"><strong>📎 Note:</strong> this stage is a <em>content generation</em> task — closer to drafting than to decision-making. Guardrails can be lighter (a hiring manager will read the rubric before it's used). The heavier controls you discussed in Section 1 kick in at Stage 2.</p>
+            </div>
+
+            <div class="considerations">
+                <h4>Your Rubric Should Include</h4>
+                <ul>
+                    <li>4–6 scoring categories with percentage weights (totalling 100%)</li>
+                    <li>Must-have requirements vs nice-to-have for each category</li>
+                    <li>Red flags or warning signs to watch for</li>
+                    <li>Seniority indicators (what distinguishes senior from junior candidates)</li>
+                </ul>
+            </div>
+
+            <div class="warning-box" style="background: #d1ecf1; border-color: #0c5460;">
+                <p style="color: #0c5460;"><strong>🎛️ Editable weights:</strong> AI generates initial weights; hiring managers know things the JD doesn't capture. Build in the ability to manually adjust weights before screening. For example: "The JD emphasises networking, but we actually need someone stronger on cloud — shift 10% from Infrastructure to Cloud Experience." This is where human expertise shapes AI output.</p>
+            </div>
+
+            <div class="warning-box" style="background: #fff3cd; border-color: #ffc107;">
+                <p style="color: #856404;"><strong>🧠 Design question — how do you capture the hiring manager's soft context?</strong> JDs are written for public consumption. They rarely capture the things a hiring manager actually knows about the role: that the team is junior and needs a leader who can mentor; that the previous incumbent struggled with stakeholder management; that the business is about to migrate to Azure so recent Azure experience matters more than the JD implies; that the team sits in a particular cultural context that rewards a certain communication style.</p>
+                <p style="color: #856404; margin-top: 0.55rem;">How will your tool let the team add this <em>before</em> the rubric is generated, so it shapes the weights rather than being applied as an override afterwards? Discuss as a group, then build what you decide — the hints below show a couple of ways.</p>
+            </div>
+
+            <details class="hint-box">
+                <summary class="hint-title">💡 Technical Hint</summary>
+                <div class="hint-content">
+                    <p>The simplest working version just displays the rubric as readable text — that's perfectly fine. If you want the stages to pass data cleanly to each other later, you can ask Claude to also produce a structured (JSON) version, but this isn't required for a 2-hour sprint. Pasting the rubric text into Stage 2 works. An "Edit Weights" toggle making percentage fields editable (with validation that they total 100%) is the first point where human judgement can override AI.</p>
+                    <p style="margin-top: 0.5rem;"><strong>For soft context:</strong> simplest is a free-text field folded into the prompt ("Additional context from the hiring manager: ..."). One step up: ask a few structured questions (team seniority, recent failure mode, what the JD over- or under-states) and pass the answers in.</p>
+                </div>
+            </details>
+
+            <details class="hint-box">
+                <summary class="hint-title">🎯 Potential Prompts</summary>
+                <div class="hint-content">
+                    <p style="font-weight: 600;">Basic structure:</p>
+                    <div class="prompt-box">"Build a React component where I paste a job description and get a scoring rubric with weighted categories."</div>
+                    <p style="margin-top: 0.7rem; font-weight: 600;">Add a soft-context field:</p>
+                    <div class="prompt-box">"Before generating the rubric, ask the hiring manager a few short questions about things the JD might not capture — team seniority, recent failure modes, what the JD might be over- or under-stating. Use the answers to inform the rubric."</div>
+                    <p style="margin-top: 0.7rem; font-weight: 600;">Add editability:</p>
+                    <div class="prompt-box">"Add an 'Edit Weights' button so I can manually adjust the percentages. Validate they total 100%."</div>
+                    <p style="margin-top: 0.7rem; font-weight: 600;">Refine extraction:</p>
+                    <div class="prompt-box">"For each category, also show must-haves vs nice-to-haves, and red flags to watch for."</div>
+                    <p style="margin-top: 0.7rem; font-weight: 600;">If too generic:</p>
+                    <div class="prompt-box">"The rubric is too generic. Make it more specific to the actual requirements in this job description."</div>
+                </div>
+            </details>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step3" class="notes-textarea" placeholder="How did you capture the hiring manager's soft context? What worked in the rubric generator? What iterations did you make?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step3" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step3')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #1F3864; color: white; padding: 1.25rem 1.5rem; margin: 1.5rem 0 0.5rem; border-radius: 8px; border-left: 5px solid #D50032;">
+            <h4 style="color: white; margin-bottom: 0.6rem; font-size: 1.05rem;">⏸ Before you move on — three questions</h4>
+            <p style="font-size: 0.95rem; opacity: 0.95; margin-bottom: 0.6rem;">These are the questions that matter for any AI tool you build, not just this one. Discuss at your table for 3 minutes before continuing:</p>
+            <ol style="padding-left: 1.5rem; font-size: 0.95rem;">
+                <li style="padding: 0.25rem 0;">What <strong>business judgement</strong> did you inject into the rubric that was not in the JD?</li>
+                <li style="padding: 0.25rem 0;">Where did you choose <strong>editability</strong> over automation — and why there specifically?</li>
+                <li style="padding: 0.25rem 0;">In the process you named in Step 0, <strong>what would be the equivalent</strong> of each of these design choices?</li>
+            </ol>
+        </div>
+
+        <div style="text-align: center; margin: 1.5rem 0 0.5rem;">
+            <button class="save-btn" style="background: #1F3864; padding: 0.7rem 1.6rem; font-size: 0.95rem;" onclick="goToTab('build2')">Continue to Stage 2 — CV Scoring →</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 3b: BUILD — CV SCORING                   -->
+    <!-- ============================================ -->
+    <div class="tab-content" id="tab-build2">
+
+        <div class="phase-intro">
+            <h2>Section 2b — Build Stage 2: CV Scoring</h2>
+            <p>From a rubric to an evidence-based CV assessment.</p>
+        </div>
+
+                <!-- COMPACT PROGRESS STRIP -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap;margin:0.5rem 0 1.25rem;padding:0.6rem 1rem;background:#f8f9fa;border-radius:20px;"><span style="color:#adb5bd;font-size:0.82rem;white-space:nowrap;">Stage 1</span><span style="color:#ced4da;margin:0 0.2rem;">→</span><span style="background:#D50032;color:#fff;font-weight:700;padding:0.28rem 0.7rem;border-radius:20px;font-size:0.82rem;white-space:nowrap;">Stage 2: CV Scoring</span><span style="color:#ced4da;margin:0 0.2rem;">→</span><span style="color:#adb5bd;font-size:0.82rem;white-space:nowrap;">Stage 3</span></div>
+
+
+        <div class="section">
+            <h3><span class="step-number">4</span>Build Stage 2: CV Scoring</h3>
+            <p class="question">How do you score a CV against your rubric with evidence?</p>
+            <p>Take a CV, apply the rubric from Stage 1, produce a scored assessment with specific evidence from the CV.</p>
+
+            <div class="warning-box" style="background: #fcebee; border-color: #D50032;">
+                <p style="color: #721c24;"><strong>📎 Note:</strong> this stage blends <em>prediction and judgement about a person</em> — the kind of task the EU AI Act treats as high-risk in recruitment (Annex III). The stakes are higher here than in Stage 1, and the governance controls you'll design in Section 3 — audit trail, bias testing, human override — apply most forcefully to this stage.</p>
+            </div>
+
+            <div class="considerations">
+                <h4>Your Assessment Should Include</h4>
+                <ul>
+                    <li>Overall score (0–100) and tier (Strong Fit / Worth Review / Not a Fit)</li>
+                    <li>Score for each rubric category with evidence quotes from the CV</li>
+                    <li>Top 3 strengths and top 3 concerns</li>
+                    <li>Any red flags matched from the rubric</li>
+                    <li>Specific things to verify in interview</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>Evidence is everything:</strong> "Strong technical background" is useless. "7 years managing VMware/Hyper-V environments, led 3 cloud migrations" is actionable. Push for specificity.</p>
+            </div>
+
+            <div class="warning-box" style="background: #d1ecf1; border-color: #0c5460;">
+                <p style="color: #0c5460;"><strong>🎛️ Manual score override:</strong> AI generates scores; reviewers may disagree. Build in ability to adjust individual category scores after the assessment. Log both the original AI score and the adjusted score — an audit trail of human judgement layered on AI analysis.</p>
+            </div>
+
+            <details class="hint-box">
+                <summary class="hint-title">💡 Technical Hint</summary>
+                <div class="hint-content">
+                    <p><strong>Rubric powers the assessment:</strong> Pass the Stage 1 rubric into the system prompt for Stage 2 to keep scoring consistent. Add a "hiring manager context" field for things like "the team is junior, so coaching ability matters more than the 5% weight suggests."</p>
+                    <p style="margin-top: 0.5rem;"><strong>Overrides for auditability:</strong> log the reason alongside each override — e.g. "AI 65 → reviewer 75: startup experience not captured in keywords." That log is exactly what Legal asks for in Section 3.</p>
+                </div>
+            </details>
+
+            <details class="hint-box">
+                <summary class="hint-title">🎯 Potential Prompts</summary>
+                <div class="hint-content">
+                    <p style="font-weight: 600;">Basic screening:</p>
+                    <div class="prompt-box">"Add a CV screening stage. Show the rubric on the left, CV input on the right. Score the CV against each category with evidence."</div>
+                    <p style="margin-top: 0.7rem; font-weight: 600;">Add override workflow:</p>
+                    <div class="prompt-box">"Let me adjust individual category scores manually. Keep both the original AI score and the adjusted score visible, with a required reason field."</div>
+                </div>
+            </details>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step4" class="notes-textarea" placeholder="How specific was the evidence? Did manual overrides work well?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step4" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step4')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #fff3cd; border: 2px dashed #D50032; padding: 1.25rem 1.5rem; margin: 1.5rem 0 0.5rem; border-radius: 8px; text-align: center;">
+            <h4 style="color: #1F3864; margin-bottom: 0.4rem; font-size: 1.05rem;">⏸ Pause — 2 minutes</h4>
+            <p style="color: #856404; margin-bottom: 0.5rem;"><strong>Good moment for a short break.</strong></p>
+            <p style="color: #856404; font-size: 0.95rem; margin-bottom: 0;">When we regroup, one table walks us through their rubric and CV scoring — a couple of minutes, informally. Worth watching for: one choice you find clever, and one you'd challenge.</p>
+        </div>
+
+        <div style="text-align: center; margin: 1.5rem 0 0.5rem;">
+            <button class="save-btn" style="background: #1F3864; padding: 0.7rem 1.6rem; font-size: 0.95rem;" onclick="goToTab('build3')">Continue to Stage 3 — Interview Kit →</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 3c: BUILD — INTERVIEW KIT                -->
+    <!-- ============================================ -->
+    <div class="tab-content" id="tab-build3">
+
+        <div class="phase-intro">
+            <h2>Section 2c — Build Stage 3: Interview Kit</h2>
+            <p>Build the kit, then test the full pipeline end-to-end and debrief.</p>
+        </div>
+
+                <!-- COMPACT PROGRESS STRIP -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap;margin:0.5rem 0 1.25rem;padding:0.6rem 1rem;background:#f8f9fa;border-radius:20px;"><span style="color:#adb5bd;font-size:0.82rem;white-space:nowrap;">Stage 1</span><span style="color:#ced4da;margin:0 0.2rem;">→</span><span style="color:#adb5bd;font-size:0.82rem;white-space:nowrap;">Stage 2</span><span style="color:#ced4da;margin:0 0.2rem;">→</span><span style="background:#D50032;color:#fff;font-weight:700;padding:0.28rem 0.7rem;border-radius:20px;font-size:0.82rem;white-space:nowrap;">Stage 3: Interview Kit</span></div>
+
+
+        <div class="section">
+            <h3><span class="step-number">5</span>Build Stage 3: Interview Kit</h3>
+            <p class="question">How do you generate questions that probe this specific candidate's gaps?</p>
+            <p>Generic questions are useless. Questions that probe this candidate's specific gaps and verify their claimed strengths are gold — and that only works because Stages 1 and 2 feed in.</p>
+
+            <div class="considerations">
+                <h4>Your Interview Kit Should Include</h4>
+                <ul>
+                    <li>6–8 tailored questions, each linked to a specific gap or claim to verify</li>
+                    <li>For each: what a good answer looks like, plus a follow-up probe</li>
+                    <li>A scorecard with rating descriptors (what does 5/5 vs 3/5 vs 1/5 look like?)</li>
+                </ul>
+            </div>
+
+            <details class="hint-box">
+                <summary class="hint-title">💡 Technical Hint</summary>
+                <div class="hint-content">
+                    <p><strong>Context is king:</strong> The kit generator should receive both the rubric (what we're looking for) and the assessment (what we found). This enables: "Your CV mentions leading cloud migrations, but doesn't specify scale. Walk me through the largest migration you led — how many systems, what timeline, what went wrong?" Vastly more useful than "Tell me about your cloud experience."</p>
+                </div>
+            </details>
+
+            <details class="hint-box">
+                <summary class="hint-title">🎯 Potential Prompts</summary>
+                <div class="hint-content">
+                    <p style="font-weight: 600;">Tailored questions:</p>
+                    <div class="prompt-box">"Generate interview questions based on this candidate's gaps and concerns. Make them specific to what we found."</div>
+                    <p style="margin-top: 0.7rem; font-weight: 600;">Structure and scorecard:</p>
+                    <div class="prompt-box">"Add an interview structure with time allocations. For each question, show what a good answer looks like and add a scorecard with rating descriptors."</div>
+                    <p style="margin-top: 0.7rem; font-weight: 600;">If too generic:</p>
+                    <div class="prompt-box">"These could apply to anyone. Make them specific to this candidate's CV and the gaps we identified."</div>
+                </div>
+            </details>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step5" class="notes-textarea" placeholder="How tailored were the questions? Did context from earlier stages help?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step5" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step5')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="border: 2px solid #0c5460; background: #e8f6f8;">
+            <h3 style="color: #0c5460;"><span class="step-number" style="background: #0c5460;">6</span>Test Your Full Pipeline &amp; Iterate</h3>
+            <p class="question">How well do the stages connect, and what needs refining?</p>
+            <p>Run the pipeline start to finish. The goal isn't a perfect tool — it's seeing where the stages connect cleanly and where they don't. Your first end-to-end run <em>will</em> surface issues (a category that doesn't map, a score that feels off); catching them and iterating is the job.</p>
+
+            <div class="considerations">
+                <h4>Test With the Sample JD and CVs — Check</h4>
+                <ul>
+                    <li>Does the rubric capture what actually matters? Are the weights right?</li>
+                    <li>Run one CV through: is the evidence specific and do the scores feel right?</li>
+                    <li>Does the interview kit read as tailored to this person, or could it apply to anyone?</li>
+                </ul>
+            </div>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step6" class="notes-textarea" placeholder="What broke or surprised you in the end-to-end test? What did you go back and fix?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step6" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step6')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="debrief">
+            <h3>Section 2 — Debrief</h3>
+            <p style="margin-bottom: 0.7rem;">Pause. Let's reflect on the build.</p>
+            <ul class="debrief-questions">
+                <li><strong>What worked:</strong> Which parts came together well? Where did AI deliver on the first or second try?</li>
+                <li><strong>What didn't:</strong> Where did you hit friction? What required the most iteration?</li>
+                <li><strong>Human-in-the-loop:</strong> Where did you build in manual overrides? Why those points specifically?</li>
+                <li><strong>Testing insights:</strong> What did the end-to-end test reveal that building stage-by-stage didn't?</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin: 1.5rem 0 0.5rem;">
+            <button class="save-btn" style="background: #1F3864; padding: 0.7rem 1.6rem; font-size: 0.95rem;" onclick="goToTab('evaluate')">Continue to Section 3 — Evaluate →</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 4: EVALUATE                              -->
+    <!-- ============================================ -->
+    <div class="tab-content" id="tab-evaluate">
+
+        <div class="phase-intro">
+            <h2>Section 3 — Evaluation & Reflection</h2>
+            <p>Pressure-test what you built.</p>
+        </div>
+
+        <div class="section">
+            <h3><span class="step-number">7</span>Design Your Evaluation</h3>
+            <p class="question">How would you know if this tool actually works before deploying it?</p>
+            <p>Building a prototype is step one. Validating it makes good decisions is step two — where most AI projects fail. Design an evaluation that would give you confidence to deploy (or evidence that you shouldn't).</p>
+
+            <div class="evaluation-box">
+                <h4>This Is Not a Coding Exercise</h4>
+                <p>You don't need to build the evaluation — you need to <em>design</em> it. What data would you need? What would success look like? What failure modes are you testing for?</p>
+            </div>
+
+            <div class="considerations">
+                <h4>Evaluation Dimensions</h4>
+                <ul>
+                    <li><strong>Accuracy:</strong> Does it score candidates the way experienced recruiters would?</li>
+                    <li><strong>Consistency:</strong> Same score to the same CV twice? Similar scores to similar CVs?</li>
+                    <li><strong>Calibration:</strong> Do "Strong Fit" candidates actually perform better post-hire?</li>
+                    <li><strong>Edge cases:</strong> Unusual backgrounds, career changers, employment gaps, non-traditional paths?</li>
+                </ul>
+            </div>
+
+            <details class="hint-box">
+                <summary class="hint-title">💡 Evaluation Hint</summary>
+                <div class="hint-content">
+                    <p><strong>The gold standard test:</strong> Take a recently-filled role where you have (1) the original JD, (2) CVs from candidates you interviewed, (3) your actual hiring decisions. Run the CVs through the tool. Does it rank hires above rejects? Does it flag the same concerns you identified in interviews? Backtesting with real decisions as ground truth.</p>
+                    <p style="margin-top: 0.5rem;"><strong>Edge cases:</strong> Find CVs from successful hires with non-traditional backgrounds — career changers, employment gaps, unexpected industries. Does the tool recognise their potential, or penalise them unfairly?</p>
+                </div>
+            </details>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step7" class="notes-textarea" placeholder="How would you evaluate this tool? What data do you need? What failure modes concern you most?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step7" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step7')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3><span class="step-number">8</span>Stakeholder Concerns & Design Implications</h3>
+            <p class="question">Your tool works — but can you get it approved?</p>
+            <p>Before deployment, you'll need sign-off from multiple stakeholders. Each has legitimate concerns that affect your system design.</p>
+
+            <div class="evaluation-box">
+                <h4 style="color: #856404;">⚖️ Scenario A: Legal Team</h4>
+                <p style="color: #856404;">"We need to audit every rejection decision. If a candidate challenges our process, we must demonstrate that the decision was fair, consistent, and job-relevant. How does your tool support this?"</p>
+            </div>
+            <div class="considerations">
+                <h4>Design Questions</h4>
+                <ul>
+                    <li>What data do you need to log for each screening decision?</li>
+                    <li>How do you ensure reasoning is traceable and explainable?</li>
+                    <li>Can you reconstruct why a candidate was rejected 6 months later?</li>
+                    <li>What happens if the AI model is updated — can you still audit old decisions?</li>
+                </ul>
+            </div>
+            <details class="hint-box">
+                <summary class="hint-title">💡 Design Levers for Auditability</summary>
+                <div class="hint-content">
+                    <ul style="padding-left: 1.25rem;">
+                        <li><strong>Evidence-based scoring:</strong> Every score cites specific CV evidence</li>
+                        <li><strong>Versioned rubrics:</strong> Store the exact rubric used for each decision</li>
+                        <li><strong>Decision logging:</strong> Log inputs, outputs, model version</li>
+                        <li><strong>Human-in-the-loop:</strong> Log which human reviewed/approved/overrode</li>
+                        <li><strong>Immutable audit trail:</strong> Decisions can't be modified retroactively</li>
+                    </ul>
+                </div>
+            </details>
+
+            <div class="evaluation-box" style="background: #f8d7da; border-color: #dc3545; margin-top: 1.25rem;">
+                <h4 style="color: #721c24;">🚨 Scenario B: Talent & DEI Team</h4>
+                <p style="color: #721c24;">"We're concerned about gender and racial bias. AI systems have repeatedly been shown to discriminate. We will not approve this tool unless you can demonstrate it doesn't introduce or amplify bias."</p>
+            </div>
+            <div class="considerations">
+                <h4>Design Questions</h4>
+                <ul>
+                    <li>How would you test for bias without collecting demographic data on candidates?</li>
+                    <li>What proxies might inadvertently encode bias? (University names, employment gaps, name patterns?)</li>
+                    <li>Should the tool see candidate names at all? University names?</li>
+                    <li>How do you distinguish "bias" from "legitimate job-relevant criteria"?</li>
+                    <li>What ongoing monitoring would you implement post-deployment?</li>
+                </ul>
+            </div>
+            <details class="hint-box">
+                <summary class="hint-title">💡 Design Levers for Bias Mitigation</summary>
+                <div class="hint-content">
+                    <ul style="padding-left: 1.25rem;">
+                        <li><strong>Blind screening:</strong> Strip names, photos, universities before AI assessment</li>
+                        <li><strong>Synthetic pair testing:</strong> Identical CVs with only names/demographics changed — scores should be identical</li>
+                        <li><strong>Criteria validation:</strong> Every criterion demonstrably job-relevant (legally defensible)</li>
+                        <li><strong>Disparate impact analysis:</strong> Monitor pass rates by demographic group</li>
+                        <li><strong>Regular audits:</strong> Third-party bias audits on a regular cadence</li>
+                        <li><strong>Human override:</strong> AI recommends but humans decide — accountability stays with people</li>
+                    </ul>
+                </div>
+            </details>
+
+            <div class="evaluation-box" style="background: #d1ecf1; border-color: #0c5460; margin-top: 1.25rem;">
+                <h4 style="color: #0c5460;">📊 Scenario C: HR Operations</h4>
+                <p style="color: #0c5460;">"We process 500 applications per week across 30 open roles. The tool needs to integrate with our ATS, handle multiple job families with different rubrics, and not create more work for our team. What does the operational model look like?"</p>
+            </div>
+            <div class="considerations">
+                <h4>Design Questions</h4>
+                <ul>
+                    <li>How does the tool integrate with existing systems (ATS, HRIS)?</li>
+                    <li>Who maintains rubrics for each job family? How often are they updated?</li>
+                    <li>Fully automated? Human review of all? Only edge cases?</li>
+                    <li>How do you handle volume spikes (graduate recruitment season)?</li>
+                    <li>What training do recruiters need? What's the change management plan?</li>
+                </ul>
+            </div>
+
+            <div class="evaluation-box" style="background: #e7f3ff; border-color: #0066cc; margin-top: 1.25rem;">
+                <h4 style="color: #004085;">🎯 Scenario D: Hiring Managers</h4>
+                <p style="color: #004085;">"I know my team better than any job description captures. Last time HR screened candidates, they rejected someone who would have been perfect because they didn't tick every box. How do I make sure this tool doesn't make the same mistake?"</p>
+            </div>
+            <div class="considerations">
+                <h4>Design Questions</h4>
+                <ul>
+                    <li>How do hiring managers inject their context and priorities?</li>
+                    <li>Can they adjust weights or override criteria for specific searches?</li>
+                    <li>How do you balance standardisation (fairness) with customisation (relevance)?</li>
+                    <li>What visibility do hiring managers have into why candidates were screened out?</li>
+                    <li>Can they "rescue" candidates the tool rejected?</li>
+                </ul>
+            </div>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step8" class="notes-textarea" placeholder="Which stakeholder concerns were hardest to address? Where did concerns conflict?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step8" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step8')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3><span class="step-number">9</span>Produce the One-Pager</h3>
+            <p class="question">Now turn Steps 7 and 8 into something you could put in front of a steering committee.</p>
+            <p>This step is about <em>synthesis, not new design</em>. You've already designed your evaluation (Step 7) and surfaced stakeholder concerns (Step 8). Use your own tool — or Claude directly — to turn those decisions into a single-page governance protocol.</p>
+
+            <div class="warning-box" style="background: #d1ecf1; border-color: #0c5460;">
+                <p style="color: #0c5460;"><strong>⏱ Keep this tight.</strong> This shouldn't take long. The real work was in Steps 7 and 8; here you're just packaging it. If you find yourself redesigning, stop and go back to your earlier notes.</p>
+            </div>
+
+            <details class="hint-box" open>
+                <summary class="hint-title">🎯 Use this prompt</summary>
+                <div class="hint-content">
+                    <p>Paste your Step 7 evaluation design and the key points from your Step 8 stakeholder review into Claude, then:</p>
+                    <div class="prompt-box">"Using the evaluation design and stakeholder responses above, draft a one-page governance protocol I could present to a steering committee to approve a pilot of this tool. Cover: test data, ground truth, accuracy thresholds, bias testing, audit requirements, human oversight posture, ongoing monitoring, and kill criteria. Be concrete — no generic AI-governance language. Where I haven't given you enough detail, flag it as an open question rather than inventing an answer."</div>
+                    <p style="margin-top: 0.7rem;"><strong>Then stress-test it:</strong></p>
+                    <div class="prompt-box">"What are the three strongest objections a sceptical partner or regulator could raise to this protocol? For each, either strengthen the protocol or acknowledge it as a known limitation."</div>
+                </div>
+            </details>
+
+            <div class="notes-box">
+                <h4>📝 Your Notes</h4>
+                <textarea id="notes-step9" class="notes-textarea" placeholder="Paste or summarise your one-pager here. What did the stress-test surface? Where are the open questions?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-step9" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('step9')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="background: #fff; border: 2px solid #1F3864; border-top: 6px solid #D50032;">
+            <h3 style="color: #1F3864; font-size: 1.25rem;">📋 Pilot Go/No-Go Card</h3>
+            <p style="color: #495057; margin-bottom: 0.8rem;">A reusable one-card template. Fill it in for this tool now, then keep the blank version to use on every AI pilot you assess from now on. Five fields. If you can't answer them, the pilot isn't ready.</p>
+
+            <div style="background: #f8f9fa; border: 1px solid #d9dee8; border-radius: 6px; padding: 0; overflow: hidden; margin: 1rem 0;">
+                <div style="background: #1F3864; color: white; padding: 0.6rem 1rem; font-size: 0.8rem; letter-spacing: 2px; font-weight: 600;">PILOT GO/NO-GO CARD</div>
+                <div style="padding: 1.25rem 1.5rem;">
+                    <div style="margin-bottom: 1.1rem;">
+                        <label style="display: block; color: #1F3864; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem;">1 · Use case owner</label>
+                        <p style="color: #6c757d; font-size: 0.82rem; margin-bottom: 0.4rem; font-style: italic;">A named accountable person — not a team, not a committee.</p>
+                        <textarea class="notes-textarea" id="notes-gonogo-owner" style="min-height: 42px;" placeholder="e.g., Head of Talent Acquisition"></textarea>
+                    </div>
+                    <div style="margin-bottom: 1.1rem;">
+                        <label style="display: block; color: #1F3864; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem;">2 · Human checkpoint</label>
+                        <p style="color: #6c757d; font-size: 0.82rem; margin-bottom: 0.4rem; font-style: italic;">Where exactly does a human review, approve, or intervene before an output is acted on?</p>
+                        <textarea class="notes-textarea" id="notes-gonogo-checkpoint" style="min-height: 42px;" placeholder="e.g., Every rejection below 'Strong Fit' is reviewed by a recruiter before the candidate is notified"></textarea>
+                    </div>
+                    <div style="margin-bottom: 1.1rem;">
+                        <label style="display: block; color: #1F3864; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem;">3 · Key risk</label>
+                        <p style="color: #6c757d; font-size: 0.82rem; margin-bottom: 0.4rem; font-style: italic;">The one thing that, if it goes wrong, ends the pilot and damages the firm.</p>
+                        <textarea class="notes-textarea" id="notes-gonogo-risk" style="min-height: 42px;" placeholder="e.g., Disparate impact on protected groups that we fail to detect"></textarea>
+                    </div>
+                    <div style="margin-bottom: 1.1rem;">
+                        <label style="display: block; color: #1F3864; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem;">4 · Metric of success</label>
+                        <p style="color: #6c757d; font-size: 0.82rem; margin-bottom: 0.4rem; font-style: italic;">One measurable outcome, with a threshold, not a vibe.</p>
+                        <textarea class="notes-textarea" id="notes-gonogo-metric" style="min-height: 42px;" placeholder="e.g., ≥80% agreement with senior recruiters on 'Strong Fit' / 'Not a Fit' calls, over 50 backtested CVs"></textarea>
+                    </div>
+                    <div style="margin-bottom: 0.4rem;">
+                        <label style="display: block; color: #1F3864; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem;">5 · Shutdown trigger</label>
+                        <p style="color: #6c757d; font-size: 0.82rem; margin-bottom: 0.4rem; font-style: italic;">What specific observation would make you turn it off tomorrow? Written in advance, not negotiated in the moment.</p>
+                        <textarea class="notes-textarea" id="notes-gonogo-shutdown" style="min-height: 42px;" placeholder="e.g., Any single month where pass rates differ by more than X% across demographic groups, or two consecutive audits flag unexplained scoring drift"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box" style="background: #d1ecf1; border-color: #0c5460;">
+                <p style="color: #0c5460;"><strong>Use this after the workshop.</strong> The card is deliberately short. Five fields, one page. Every AI pilot proposed in your organisation should clear this bar before it gets a budget. If you can't name the owner, the checkpoint, the key risk, the success metric, and the shutdown trigger — the proposal isn't ready.</p>
+            </div>
+        </div>
+
+        <div class="section" style="background: #fff; border-top: 4px solid #1F3864;">
+            <h3 style="color: #1F3864; font-size: 1.3rem;">🧭 Four Takeaways Before the Final Debrief</h3>
+            <p style="margin-bottom: 1rem; color: #495057;">Before the group discussion, pause on what you just did. Four ideas are worth naming — they're the reason this exercise is in the programme.</p>
+
+            <div style="background: #f8f9fa; padding: 1rem 1.25rem; border-left: 4px solid #1F3864; margin: 0.75rem 0; border-radius: 4px;">
+                <p><strong>1. Context engineering is the skill.</strong> AI systems don't fail because they aren't smart enough — they fail because they operate without sufficient context. The rubric was only as good as your understanding of what makes a successful hire; the screening was only as useful as the context you passed in. <em>Context engineering is what you were doing every time you pushed back on an output and added specificity.</em></p>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem 1.25rem; border-left: 4px solid #D50032; margin: 0.75rem 0; border-radius: 4px;">
+                <p><strong>2. Horizontal vs. vertical.</strong> Using AI to brainstorm or draft is a <em>horizontal</em> application — useful but limited. What you built today is a <em>vertical</em> solution: an end-to-end, task-specific pipeline embedded in a real workflow. Harder to build, significantly higher value, because it encodes your domain expertise into the system itself.</p>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem 1.25rem; border-left: 4px solid #1F3864; margin: 0.75rem 0; border-radius: 4px;">
+                <p><strong>3. The product mindset.</strong> What makes a "good hire" isn't fixed. Requirements change; the market shifts; your understanding evolves. The context you pass to the model — rubrics, weights, criteria — needs to be easy to update. This is why we built editability in. <em>Treat AI tools as never finished.</em></p>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1rem 1.25rem; border-left: 4px solid #D50032; margin: 0.75rem 0; border-radius: 4px;">
+                <p><strong>4. The jagged frontier.</strong> AI performs at expert level on some tasks and makes surprising errors on others — and it's hard to predict which is which. The professionals who thrive with AI can (1) articulate requirements precisely, (2) provide domain context the AI lacks, (3) design appropriate levels of automation, (4) recognise when AI output is wrong, (5) iterate as requirements evolve. These are human skills that become <em>more</em> valuable, not less.</p>
+            </div>
+        </div>
+
+        <div class="debrief">
+            <h3>Final Debrief</h3>
+            <p style="margin-bottom: 0.7rem;">Let's close out together.</p>
+            <ul class="debrief-questions">
+                <li><strong>Speed:</strong> You built a 3-stage application in ~60 minutes that would have taken months with traditional development. Is that good news for your firm, or bad news? What does it change about who gets to build software, and what gets built?</li>
+                <li><strong>Value-add:</strong> Where did your domain expertise make the biggest difference? Where did AI handle the heavy lifting?</li>
+                <li><strong>Iteration:</strong> How many "try → refine → try again" cycles? What triggered the refinements?</li>
+                <li><strong>Trust:</strong> Would you trust this tool to screen real candidates? What's missing?</li>
+                <li><strong>Stakeholders:</strong> Which concern was hardest to address? Where did concerns conflict?</li>
+                <li><strong>Governance:</strong> What surprised you about the gap between "working prototype" and "deployable system"?</li>
+                <li><strong>Application:</strong> What processes in your organisation could benefit from this approach? Who would need to approve them?</li>
+            </ul>
+            <div class="notes-box" style="background: #f0fff0; border-color: #28a745; margin-top: 1.2rem;">
+                <h4 style="color: #155724;">📝 Debrief Reflections</h4>
+                <textarea id="notes-debrief" class="notes-textarea" style="background: #f8fff8;" placeholder="Main takeaways? What surprised you? What will you apply in your own work?"></textarea>
+                <div class="notes-actions">
+                    <span id="status-debrief" class="save-status">Auto-saves on click away</span>
+                    <button class="save-btn" onclick="saveNotes('debrief')">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="background: #1F3864; color: white; border-top: 6px solid #D50032;">
+            <h3 style="color: white; font-size: 1.3rem;">🎯 Before You Leave — One Named Workflow</h3>
+            <p style="opacity: 0.95; margin-bottom: 0.8rem;">No one leaves this room without a concrete next step. At your table, agree on <strong>one</strong> workflow from your own business — it can be the one you named back in Step 0, or something better that emerged during today — and write one sentence on why it's a good candidate for an AI-built tool.</p>
+            <p style="opacity: 0.95; margin-bottom: 0.8rem; font-size: 0.95rem;">A good candidate usually has: high volume, repetitive structure, clear inputs and outputs, a human judgement step that matters, and a governance context you already understand. The bar is not "this will definitely work" — the bar is "this is worth a two-hour vibe-coding sprint next month to find out."</p>
+
+            <div class="notes-box" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25); margin-top: 0.75rem;">
+                <h4 style="color: white; margin-bottom: 0.4rem;">The workflow we'll pilot</h4>
+                <textarea id="notes-commitment-workflow" class="notes-textarea" style="background: rgba(255,255,255,0.92); min-height: 50px;" placeholder="One sentence naming the process (e.g., 'Triage of first-notice-of-loss motor claims across our Benelux book')"></textarea>
+                <h4 style="color: white; margin-top: 0.9rem; margin-bottom: 0.4rem;">Why it's a good candidate</h4>
+                <textarea id="notes-commitment-why" class="notes-textarea" style="background: rgba(255,255,255,0.92); min-height: 50px;" placeholder="One sentence. High volume + clear document flow + existing rubric + human decision still at the end = good candidate."></textarea>
+                <div class="notes-actions" style="margin-top: 0.8rem;">
+                    <span style="color: rgba(255,255,255,0.75); font-size: 0.85rem; font-style: italic;">Auto-saves on click away</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+            <button onclick="exportNotes()" style="background: #1F3864; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">📥 Export All Notes</button>
+            <p style="margin-top: 0.6rem; color: #6c757d; font-size: 0.88rem;">Download all your notes as a text file</p>
+        </div>
+    </div>
+
+    </div><!-- /container -->
+
+    <div class="footer">
+        <p>Vibe Coding Workshop | AI-Powered Recruitment</p>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                goToTab(btn.dataset.tab);
+            });
+        });
+
+        function goToTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            try { localStorage.setItem('workshop-active-tab', tabName); } catch (e) {}
+        }
+
+        // Notes save/load
+        function saveNotes(stepId) {
+            const textarea = document.getElementById('notes-' + stepId);
+            const status = document.getElementById('status-' + stepId);
+            if (textarea && status) {
+                try {
+                    localStorage.setItem('workshop-notes-' + stepId, textarea.value);
+                    status.textContent = '✓ Saved';
+                    status.className = 'save-status saved';
+                    setTimeout(() => {
+                        status.textContent = 'Auto-saves on click away';
+                        status.className = 'save-status';
+                    }, 2000);
+                } catch (e) {}
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Restore last active tab
+            try {
+                const lastTab = localStorage.getItem('workshop-active-tab');
+                if (lastTab) goToTab(lastTab);
+            } catch (e) {}
+
+            // Load saved notes
+            document.querySelectorAll('.notes-textarea').forEach(textarea => {
+                const stepId = textarea.id.replace('notes-', '');
+                try {
+                    const saved = localStorage.getItem('workshop-notes-' + stepId);
+                    if (saved) textarea.value = saved;
+                } catch (e) {}
+                textarea.addEventListener('blur', function() {
+                    saveNotes(this.id.replace('notes-', ''));
+                });
+            });
+        });
+
+        // Export
+        function exportNotes() {
+            let allNotes = "VIBE CODING WORKSHOP — MY NOTES\n================================\n\n";
+            const labels = {
+                'step0': 'Step 0: Translate to Your Business — Parallel Process',
+                'step1': 'Step 1: Map the Hiring Process',
+                'step2': 'Step 2: Define Your Scope',
+                'step3': 'Step 3: Build Stage 1 — Role Analysis & Rubric',
+                'step4': 'Step 4: Build Stage 2 — CV Scoring',
+                'step5': 'Step 5: Build Stage 3 — Interview Kit',
+                'step6': 'Step 6: Test & Iterate',
+                'step7': 'Step 7: Design Your Evaluation',
+                'step8': 'Step 8: Stakeholder Concerns',
+                'step9': 'Step 9: Produce the One-Pager',
+                'gonogo-owner':      'Pilot Go/No-Go Card — 1. Use Case Owner',
+                'gonogo-checkpoint': 'Pilot Go/No-Go Card — 2. Human Checkpoint',
+                'gonogo-risk':       'Pilot Go/No-Go Card — 3. Key Risk',
+                'gonogo-metric':     'Pilot Go/No-Go Card — 4. Metric of Success',
+                'gonogo-shutdown':   'Pilot Go/No-Go Card — 5. Shutdown Trigger',
+                'debrief': 'Debrief Reflections',
+                'commitment-workflow': 'Closing Commitment — The Workflow We\'ll Pilot',
+                'commitment-why':      'Closing Commitment — Why It\'s a Good Candidate'
+            };
+            Object.keys(labels).forEach(stepId => {
+                try {
+                    const notes = localStorage.getItem('workshop-notes-' + stepId);
+                    if (notes && notes.trim()) {
+                        allNotes += labels[stepId] + "\n" + "-".repeat(labels[stepId].length) + "\n" + notes + "\n\n";
+                    }
+                } catch (e) {}
+            });
+            const blob = new Blob([allNotes], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'workshop-notes.txt';
+            a.click();
+        }
+    </script>
+</body>
+</html>
